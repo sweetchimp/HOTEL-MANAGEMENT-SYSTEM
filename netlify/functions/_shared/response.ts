@@ -1,3 +1,7 @@
+// ============================================================
+// Standardized API Response Utilities
+// ============================================================
+
 import { corsHeaders, type AppError } from './middleware'
 
 export interface ApiResponse<T = unknown> {
@@ -5,6 +9,14 @@ export interface ApiResponse<T = unknown> {
   data?: T
   message?: string
   error?: string
+}
+
+export interface PaginatedData<T> {
+  items: T[]
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
 }
 
 export function successResponse<T>(data: T, message?: string, statusCode = 200): Response {
@@ -21,6 +33,24 @@ export function successResponse<T>(data: T, message?: string, statusCode = 200):
       ...corsHeaders(),
     },
   })
+}
+
+export function paginatedResponse<T>(
+  items: T[],
+  total: number,
+  page: number,
+  pageSize: number,
+  message?: string
+): Response {
+  const data: PaginatedData<T> = {
+    items,
+    total,
+    page,
+    pageSize,
+    totalPages: Math.ceil(total / pageSize),
+  }
+
+  return successResponse(data, message)
 }
 
 export function errorResponse(error: string | AppError, statusCode = 500): Response {

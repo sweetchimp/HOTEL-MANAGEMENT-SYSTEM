@@ -66,14 +66,17 @@ export interface Reservation {
   created_at: string
 }
 
+export type BookingStatus = 'ACTIVE' | 'COMPLETED' | 'CANCELLED'
+
 export interface Booking {
   booking_id: number
-  reservation: Reservation
-  room: Room
+  reservation_id: number
+  room_id: number
   check_in_date: string
   check_out_date: string
   rate_per_night: number
-  status: string
+  status: BookingStatus
+  created_at: string
 }
 
 export type PaymentMethod = 'CASH' | 'CARD' | 'BANK_TRANSFER'
@@ -107,7 +110,7 @@ export interface Payment {
 
 export interface ApiResponse<T> {
   success: boolean
-  data: T
+  data?: T
   message?: string
   error?: string
 }

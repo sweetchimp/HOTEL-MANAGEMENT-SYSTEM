@@ -1,0 +1,26 @@
+{
+  "name": "altonshotel-backend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "ALTONSHOTEL Management System — Netlify Functions Backend",
+  "scripts": {
+    "dev": "netlify dev",
+    "build:frontend": "cd frontend && npm run build",
+    "start": "netlify dev --port 8888"
+  },
+  "dependencies": {
+    "oracledb": "^6.6.0",
+    "jsonwebtoken": "^9.0.2",
+    "bcryptjs": "^2.4.3",
+    "@netlify/functions": "^2.8.0"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/bcryptjs": "^2.4.6",
+    "typescript": "^5.5.4"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

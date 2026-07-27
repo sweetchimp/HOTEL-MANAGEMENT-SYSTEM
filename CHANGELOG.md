@@ -94,3 +94,72 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Completed workflow (guest stayed 3 nights, fully paid)
     - Active stay (guest currently checked in, partial payment)
     - Upcoming reservation (confirmed, not yet checked in)
+
+## [0.3.0] - 2026-07-27
+
+### Added
+
+- **Backend Infrastructure**
+  - Root `package.json` with backend dependencies (oracledb, jsonwebtoken, bcryptjs)
+  - `withConnection()` wrapper for guaranteed connection release in serverless
+  - `testConnection()` health check function
+  - Mock DB layer (`_shared/db-mock.ts`) for local development without Oracle
+  - DB_MODE env var to switch between mock and real Oracle
+  - Row mapper utility for converting Oracle result arrays to typed objects
+  - JWT utility (`_shared/jwt.ts`) for token generation and verification
+  - Pagination response utility in `_shared/response.ts`
+  - DB entity types for all 12 tables in `_shared/types.ts`
+  - Request/response types for all modules
+
+- **Authentication Endpoints**
+  - `POST /api/auth/login` — Real Oracle DB authentication with bcrypt
+  - `POST /api/auth/refresh` — JWT refresh token rotation
+  - `GET /api/auth/me` — Current user profile
+  - `POST /api/auth/change-password` — Password change with validation
+  - Login attempt tracking and account lockout after 5 failures
+
+- **Rooms Module (7 endpoints)**
+  - `GET /api/rooms` — List with filters (status, type, floor) and pagination
+  - `GET /api/rooms/:id` — Single room detail
+  - `POST /api/rooms` — Create room (admin only)
+  - `PUT /api/rooms/:id` — Update room (admin only)
+  - `DELETE /api/rooms/:id` — Delete room (admin only)
+  - `PATCH /api/rooms/:id/status` — Change room status (admin only)
+  - `GET /api/rooms/types` — List room types
+
+- **Guests Module (5 endpoints)**
+  - `GET /api/guests` — List with search and pagination
+  - `GET /api/guests/:id` — Guest profile
+  - `POST /api/guests` — Register new guest
+  - `PUT /api/guests/:id` — Update guest info
+  - `GET /api/guests/search?q=` — Autocomplete search
+
+- **Reservations Module (7 endpoints)**
+  - `GET /api/reservations` — List with filters (status, guest, date range)
+  - `GET /api/reservations/:id` — Reservation detail
+  - `POST /api/reservations` — Create with availability check
+  - `PUT /api/reservations/:id` — Modify reservation
+  - `POST /api/reservations/:id/cancel` — Cancel reservation
+  - `POST /api/reservations/:id/confirm` — Confirm reservation
+  - `GET /api/reservations/availability` — Check room availability for dates
+
+### Changed
+
+- **Frontend API Client** (`services/api.ts`)
+  - Added automatic token refresh on 401 (attempts refresh before logout)
+  - Added network error handling
+  - Added graceful non-JSON response handling
+
+- **Frontend Types** (`types/index.ts`)
+  - `Booking.status` typed as `BookingStatus` union type
+  - `Booking` interface updated to match DB schema (flat IDs instead of nested objects)
+
+- **netlify.toml**
+  - Added `NODE_VERSION = "20"`
+  - Added `DB_MODE = "mock"` for local dev
+
+### Infrastructure
+
+- 24 new backend files across auth, rooms, guests, reservations
+- 9 modified files (configs, DB layer, types, frontend)
+- Total backend: 17 API endpoints ready for testing

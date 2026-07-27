@@ -1,3 +1,7 @@
+// ============================================================
+// API Client — Frontend HTTP Service
+// ============================================================
+
 import type { ApiResponse } from '../types'
 
 const API_BASE = '/api'
@@ -21,21 +25,68 @@ class ApiClient {
       headers['Authorization'] = `Bearer ${token}`
     }
 
-    const response = await fetch(`${API_BASE}${endpoint}`, {
-      ...options,
-      headers,
-    })
+    let response: Response
+    try {
+      response = await fetch(`${API_BASE}${endpoint}`, {
+        ...options,
+        headers,
+      })
+    } catch {
+      return { success: false, error: 'Network error. Please check your connection.' }
+    }
 
-    const data = await response.json()
+    // Handle 401 — attempt token refresh before logout
+    if (response.status === 401 && token) {
+      const refreshed = await this.attemptRefresh()
+      if (refreshed) {
+        headers['Authorization'] = `Bearer ${this.getToken()}`
+        response = await fetch(`${API_BASE}${endpoint}`, { ...options, headers })
+      } else {
+        this.handleLogout()
+        return { success: false, error: 'Session expired. Please log in again.' }
+      }
+    }
 
-    if (response.status === 401) {
-      localStorage.removeItem('ahms_token')
-      localStorage.removeItem('ahms_user')
-      window.location.href = '/login'
-      throw new Error('Session expired')
+    let data: ApiResponse<T>
+    try {
+      data = await response.json()
+    } catch {
+      return { success: false, error: 'Invalid server response' }
     }
 
     return data
+  }
+
+  private async attemptRefresh(): Promise<boolean> {
+    try {
+      const refreshToken = localStorage.getItem('ahms_refresh_token')
+      if (!refreshToken) return false
+
+      const response = await fetch(`${API_BASE}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken }),
+      })
+
+      if (!response.ok) return false
+
+      const data = await response.json()
+      if (data.success && data.data?.accessToken) {
+        localStorage.setItem('ahms_token', data.data.accessToken)
+        return true
+      }
+
+      return false
+    } catch {
+      return false
+    }
+  }
+
+  private handleLogout() {
+    localStorage.removeItem('ahms_token')
+    localStorage.removeItem('ahms_refresh_token')
+    localStorage.removeItem('ahms_user')
+    window.location.href = '/login'
   }
 
   async get<T>(endpoint: string): Promise<ApiResponse<T>> {
