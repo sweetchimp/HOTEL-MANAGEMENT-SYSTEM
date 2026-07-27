@@ -43,3 +43,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `.gitignore` with comprehensive exclusions
   - `.env.example` with all environment variables
   - `netlify.toml` with build config, redirects, and security headers
+
+## [0.2.0] - 2026-07-27
+
+### Fixed
+
+- **Schema Hardening**
+  - Added `CHECK (FLOOR >= 1)` constraint on ROOMS
+  - Added `CHECK` constraint on `GUESTS.ID_TYPE` for valid ID types
+  - Added `FAILED_LOGIN_ATTEMPTS` and `LAST_LOGIN` columns to USERS
+  - Added `AUDIT_LOG` table to schema (moved from trigger file)
+  - Removed redundant `IDX_USERS_USERNAME` index (UNIQUE constraint already creates one)
+  - Added composite index `IDX_BOOKINGS_RES_STATUS` on BOOKINGS
+  - Removed inline seed data from schema file (now in separate migration)
+
+- **PL/SQL Package Fixes**
+  - PKG_AUTH: Fixed `RAWTOHEX()` conversion for password hashing compatibility
+  - PKG_AUTH: Added password complexity validation (min 8 chars, uppercase, lowercase, digit)
+  - PKG_AUTH: Added login attempt tracking (lock after 5 failures)
+  - PKG_AUTH: Added `LAST_LOGIN` timestamp update on successful login
+  - PKG_RESERVATIONS: Added room-type validation in CHECK_IN
+  - PKG_RESERVATIONS: Added date-range validation (current date within booking window)
+  - PKG_RESERVATIONS: Fixed CHECK_AVAILABILITY to exclude PENDING/CONFIRMED reservations
+  - PKG_RESERVATIONS: Added DUP_VAL_ON_INDEX handlers in CHECK_OUT
+  - PKG_RESERVATIONS: Added room status validation before check-in (must be AVAILABLE)
+  - PKG_RESERVATIONS: Added guest and room-type existence validation in CREATE_RESERVATION
+  - PKG_BILLING: Fixed floating-point comparison using ROUND()
+  - PKG_BILLING: Added PAYMENT_METHOD validation before insert
+  - PKG_BILLING: Moved UPDATE_INVOICE_TOTAL to package body (private)
+  - PKG_BILLING: Added duplicate invoice check in CREATE_INVOICE
+  - PKG_BILLING: Added auto-populate room charges as first invoice item
+  - All packages: Replaced WHEN OTHERS with specific exception handlers
+
+- **Trigger Improvements**
+  - Added TRG_CHECKIN_ROOM_STATUS trigger (sets room OCCUPIED on check-in)
+  - Added exception handlers to all triggers (prevents transaction rollback)
+  - Changed audit CHANGES from CLOB to VARCHAR2(4000)
+  - Added audit triggers for RESERVATIONS, INVOICES, PAYMENTS, USERS
+  - Expanded ROOMS audit to capture floor, type, and description changes
+
+### Added
+
+- **Idempotent Seed Data** (`database/migrations/001_idempotent_seed.sql`)
+  - All MERGE statements (safe to re-run)
+  - Proper password hashes using RAWTOHEX(DBMS_CRYPTO.HASH(...))
+  - 3 users (admin, receptionist, manager) — password: Admin123!
+  - 14 rooms across 6 floors
+  - 4 guests with varied ID types
+  - 3 test scenarios:
+    - Completed workflow (guest stayed 3 nights, fully paid)
+    - Active stay (guest currently checked in, partial payment)
+    - Upcoming reservation (confirmed, not yet checked in)

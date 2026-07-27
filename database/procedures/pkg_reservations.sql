@@ -1,17 +1,19 @@
 -- ============================================================
 -- Package: PKG_RESERVATIONS
+-- Version: 002
 -- Description: Reservation and booking management procedures
+-- Changes: Added room-type validation, date-range checks,
+--           fixed availability query, improved exception handling,
+--           removed redundant room status update (handled by trigger)
 -- ============================================================
 
 CREATE OR REPLACE PACKAGE PKG_RESERVATIONS AS
-    -- Check room availability for given dates
     FUNCTION CHECK_AVAILABILITY(
         p_room_type_id IN NUMBER,
         p_check_in IN DATE,
         p_check_out IN DATE
-    ) RETURN NUMBER;  -- Returns count of available rooms
+    ) RETURN NUMBER;
 
-    -- Create a new reservation
     PROCEDURE CREATE_RESERVATION(
         p_guest_id IN NUMBER,
         p_room_type_id IN NUMBER,
@@ -23,19 +25,16 @@ CREATE OR REPLACE PACKAGE PKG_RESERVATIONS AS
         p_result OUT VARCHAR2
     );
 
-    -- Confirm a reservation
     PROCEDURE CONFIRM_RESERVATION(
         p_reservation_id IN NUMBER,
         p_result OUT VARCHAR2
     );
 
-    -- Cancel a reservation
     PROCEDURE CANCEL_RESERVATION(
         p_reservation_id IN NUMBER,
         p_result OUT VARCHAR2
     );
 
-    -- Check in a guest (assign room)
     PROCEDURE CHECK_IN(
         p_booking_id IN NUMBER,
         p_room_id IN NUMBER,
@@ -45,7 +44,6 @@ CREATE OR REPLACE PACKAGE PKG_RESERVATIONS AS
         p_result OUT VARCHAR2
     );
 
-    -- Check out a guest
     PROCEDURE CHECK_OUT(
         p_checkin_id IN NUMBER,
         p_checked_out_by IN NUMBER,
@@ -72,7 +70,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_RESERVATIONS AS
           AND r.ROOM_ID NOT IN (
               SELECT b.ROOM_ID
               FROM BOOKINGS b
+              JOIN RESERVATIONS res ON b.RESERVATION_ID = res.RESERVATION_ID
               WHERE b.STATUS = 'ACTIVE'
+                AND res.STATUS IN ('CONFIRMED', 'CHECKED_IN')
                 AND b.CHECK_IN_DATE < p_check_out
                 AND b.CHECK_OUT_DATE > p_check_in
           );
@@ -90,9 +90,28 @@ CREATE OR REPLACE PACKAGE BODY PKG_RESERVATIONS AS
         p_reservation_id OUT NUMBER,
         p_result OUT VARCHAR2
     ) IS
+        v_guest_count NUMBER;
+        v_type_count NUMBER;
     BEGIN
+        SELECT COUNT(*) INTO v_guest_count FROM GUESTS WHERE GUEST_ID = p_guest_id;
+        IF v_guest_count = 0 THEN
+            p_result := 'GUEST_NOT_FOUND';
+            RETURN;
+        END IF;
+
+        SELECT COUNT(*) INTO v_type_count FROM ROOM_TYPES WHERE TYPE_ID = p_room_type_id;
+        IF v_type_count = 0 THEN
+            p_result := 'ROOM_TYPE_NOT_FOUND';
+            RETURN;
+        END IF;
+
         IF p_check_out_date <= p_check_in_date THEN
             p_result := 'CHECK_OUT_MUST_BE_AFTER_CHECK_IN';
+            RETURN;
+        END IF;
+
+        IF p_check_in_date < TRUNC(SYSDATE) THEN
+            p_result := 'CHECK_IN_DATE_CANNOT_BE_IN_PAST';
             RETURN;
         END IF;
 
@@ -106,9 +125,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_RESERVATIONS AS
         RETURNING RESERVATION_ID INTO p_reservation_id;
 
         p_result := 'SUCCESS';
+
     EXCEPTION
+        WHEN DUP_VAL_ON_INDEX THEN
+            p_result := 'DUPLICATE_RESERVATION';
         WHEN OTHERS THEN
-            p_result := 'ERROR: ' || SQLERRM;
+            p_result := 'ERROR: ' || SQLCODE || ' - ' || SQLERRM;
     END CREATE_RESERVATION;
 
     PROCEDURE CONFIRM_RESERVATION(
@@ -125,6 +147,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_RESERVATIONS AS
         ELSE
             p_result := 'RESERVATION_NOT_FOUND_OR_NOT_PENDING';
         END IF;
+
+    EXCEPTION
+        WHEN OTHERS THEN
+            p_result := 'ERROR: ' || SQLCODE || ' - ' || SQLERRM;
     END CONFIRM_RESERVATION;
 
     PROCEDURE CANCEL_RESERVATION(
@@ -138,10 +164,18 @@ CREATE OR REPLACE PACKAGE BODY PKG_RESERVATIONS AS
           AND STATUS IN ('PENDING', 'CONFIRMED');
 
         IF SQL%ROWCOUNT > 0 THEN
+            UPDATE BOOKINGS
+            SET STATUS = 'CANCELLED'
+            WHERE RESERVATION_ID = p_reservation_id
+              AND STATUS = 'ACTIVE';
             p_result := 'SUCCESS';
         ELSE
             p_result := 'RESERVATION_CANNOT_BE_CANCELLED';
         END IF;
+
+    EXCEPTION
+        WHEN OTHERS THEN
+            p_result := 'ERROR: ' || SQLCODE || ' - ' || SQLERRM;
     END CANCEL_RESERVATION;
 
     PROCEDURE CHECK_IN(
@@ -153,30 +187,62 @@ CREATE OR REPLACE PACKAGE BODY PKG_RESERVATIONS AS
         p_result OUT VARCHAR2
     ) IS
         v_booking BOOKINGS%ROWTYPE;
+        v_room ROOMS%ROWTYPE;
+        v_reservation RESERVATIONS%ROWTYPE;
     BEGIN
         SELECT * INTO v_booking
         FROM BOOKINGS
         WHERE BOOKING_ID = p_booking_id AND STATUS = 'ACTIVE';
 
-        -- Create check-in record
+        SELECT * INTO v_reservation
+        FROM RESERVATIONS
+        WHERE RESERVATION_ID = v_booking.RESERVATION_ID;
+
+        IF v_reservation.STATUS NOT IN ('CONFIRMED', 'CHECKED_IN') THEN
+            p_result := 'RESERVATION_NOT_CONFIRMED';
+            RETURN;
+        END IF;
+
+        SELECT * INTO v_room
+        FROM ROOMS
+        WHERE ROOM_ID = p_room_id;
+
+        IF v_room.TYPE_ID != v_reservation.ROOM_TYPE_ID THEN
+            p_result := 'ROOM_TYPE_MISMATCH';
+            RETURN;
+        END IF;
+
+        IF v_room.STATUS != 'AVAILABLE' THEN
+            p_result := 'ROOM_NOT_AVAILABLE';
+            RETURN;
+        END IF;
+
+        IF TRUNC(SYSDATE) < v_booking.CHECK_IN_DATE THEN
+            p_result := 'CHECK_IN_TOO_EARLY';
+            RETURN;
+        END IF;
+
+        IF TRUNC(SYSDATE) > v_booking.CHECK_OUT_DATE + 1 THEN
+            p_result := 'BOOKING_EXPIRED';
+            RETURN;
+        END IF;
+
         INSERT INTO CHECKINS (BOOKING_ID, CHECKED_IN_BY, NOTES)
         VALUES (p_booking_id, p_checked_in_by, p_notes)
         RETURNING CHECKIN_ID INTO p_checkin_id;
 
-        -- Update room status
-        UPDATE ROOMS SET STATUS = 'OCCUPIED', UPDATED_AT = CURRENT_TIMESTAMP
-        WHERE ROOM_ID = p_room_id;
-
-        -- Update reservation status
         UPDATE RESERVATIONS SET STATUS = 'CHECKED_IN', UPDATED_AT = CURRENT_TIMESTAMP
-        WHERE RESERVATION_ID = (
-            SELECT RESERVATION_ID FROM BOOKINGS WHERE BOOKING_ID = p_booking_id
-        );
+        WHERE RESERVATION_ID = v_booking.RESERVATION_ID;
 
         p_result := 'SUCCESS';
+
     EXCEPTION
         WHEN NO_DATA_FOUND THEN
             p_result := 'BOOKING_NOT_FOUND_OR_NOT_ACTIVE';
+        WHEN DUP_VAL_ON_INDEX THEN
+            p_result := 'ALREADY_CHECKED_IN';
+        WHEN OTHERS THEN
+            p_result := 'ERROR: ' || SQLCODE || ' - ' || SQLERRM;
     END CHECK_IN;
 
     PROCEDURE CHECK_OUT(
@@ -187,40 +253,32 @@ CREATE OR REPLACE PACKAGE BODY PKG_RESERVATIONS AS
         p_result OUT VARCHAR2
     ) IS
         v_checkin CHECKINS%ROWTYPE;
-        v_room_id NUMBER;
     BEGIN
         SELECT * INTO v_checkin
         FROM CHECKINS
         WHERE CHECKIN_ID = p_checkin_id;
 
-        -- Get room_id from booking
-        SELECT ROOM_ID INTO v_room_id
-        FROM BOOKINGS
-        WHERE BOOKING_ID = v_checkin.BOOKING_ID;
-
-        -- Create check-out record
         INSERT INTO CHECKOUTS (CHECKIN_ID, CHECKED_OUT_BY, NOTES)
         VALUES (p_checkin_id, p_checked_out_by, p_notes)
         RETURNING CHECKOUT_ID INTO p_checkout_id;
 
-        -- Free up the room
-        UPDATE ROOMS SET STATUS = 'AVAILABLE', UPDATED_AT = CURRENT_TIMESTAMP
-        WHERE ROOM_ID = v_room_id;
-
-        -- Update booking status
         UPDATE BOOKINGS SET STATUS = 'COMPLETED'
         WHERE BOOKING_ID = v_checkin.BOOKING_ID;
 
-        -- Update reservation status
         UPDATE RESERVATIONS SET STATUS = 'COMPLETED', UPDATED_AT = CURRENT_TIMESTAMP
         WHERE RESERVATION_ID = (
             SELECT RESERVATION_ID FROM BOOKINGS WHERE BOOKING_ID = v_checkin.BOOKING_ID
         );
 
         p_result := 'SUCCESS';
+
     EXCEPTION
         WHEN NO_DATA_FOUND THEN
             p_result := 'CHECKIN_NOT_FOUND';
+        WHEN DUP_VAL_ON_INDEX THEN
+            p_result := 'ALREADY_CHECKED_OUT';
+        WHEN OTHERS THEN
+            p_result := 'ERROR: ' || SQLCODE || ' - ' || SQLERRM;
     END CHECK_OUT;
 
 END PKG_RESERVATIONS;
