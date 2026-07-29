@@ -76,6 +76,26 @@ const ROUTES = {
   'GET /api/reports/revenue': './netlify/functions/reports/revenue.ts',
   'GET /api/reports/room-types': './netlify/functions/reports/room-types.ts',
   'GET /api/reports/popular-guests': './netlify/functions/reports/popular-guests.ts',
+
+  // Phase 7 — Maintenance
+  'GET /api/maintenance': './netlify/functions/maintenance/list.ts',
+  'POST /api/maintenance': './netlify/functions/maintenance/create.ts',
+  'GET /api/maintenance/:id': './netlify/functions/maintenance/detail.ts',
+  'POST /api/maintenance/:id/resolve': './netlify/functions/maintenance/resolve.ts',
+
+  // Phase 7 — Housekeeping
+  'GET /api/housekeeping/tasks': './netlify/functions/housekeeping/tasks.ts',
+  'POST /api/housekeeping/tasks/:id/complete': './netlify/functions/housekeeping/complete.ts',
+
+  // Phase 8 — Staff
+  'GET /api/staff': './netlify/functions/staff/list.ts',
+  'POST /api/staff': './netlify/functions/staff/create.ts',
+  'PUT /api/staff/:id': './netlify/functions/staff/update.ts',
+  'POST /api/staff/:id/deactivate': './netlify/functions/staff/deactivate.ts',
+
+  // Phase 8 — Payroll
+  'GET /api/payroll/:staff_id': './netlify/functions/payroll/list.ts',
+  'POST /api/payroll': './netlify/functions/payroll/create.ts',
 }
 
 function matchRoute(method, pathname) {

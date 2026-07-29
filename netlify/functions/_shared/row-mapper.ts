@@ -47,6 +47,17 @@ const COLUMN_MAPS: Record<string, ColumnMap> = {
     PAYMENT_ID: 0, INVOICE_ID: 1, AMOUNT: 2, PAYMENT_METHOD: 3,
     PAYMENT_DATE: 4, REFERENCE_NUMBER: 5, RECEIVED_BY: 6,
   },
+  MAINTENANCE: {
+    ID: 0, ROOM_ID: 1, ISSUE_TYPE: 2, DESCRIPTION: 3,
+    STATUS: 4, CREATED_DATE: 5, ASSIGNED_TO: 6, RESOLVED_DATE: 7, NOTES: 8,
+  },
+  STAFF: {
+    ID: 0, FULL_NAME: 1, EMAIL: 2, PHONE: 3,
+    DEPARTMENT: 4, POSITION: 5, SALARY: 6, HIRE_DATE: 7, IS_ACTIVE: 8,
+  },
+  PAYROLL: {
+    ID: 0, STAFF_ID: 1, MONTH: 2, SALARY_PAID: 3, PAYMENT_DATE: 4,
+  },
 }
 
 export function mapRow<T>(row: unknown[], tableName: string): T {

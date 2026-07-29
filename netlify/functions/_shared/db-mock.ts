@@ -92,6 +92,36 @@ let PAYMENTS = [
   { PAYMENT_ID: 2, INVOICE_ID: 2, AMOUNT: 200, PAYMENT_METHOD: 'CASH', PAYMENT_DATE: '2026-07-26T15:30:00', REFERENCE_NUMBER: 'CASH-2026-001', RECEIVED_BY: 2 },
 ]
 
+let MAINTENANCE = [
+  { ID: 1, ROOM_ID: 3, ISSUE_TYPE: 'PLUMBING', DESCRIPTION: 'Leaking faucet in bathroom sink', STATUS: 'OPEN', CREATED_DATE: '2026-07-27T09:00:00', ASSIGNED_TO: 'Mike Plumber', RESOLVED_DATE: null, NOTES: '' },
+  { ID: 2, ROOM_ID: 11, ISSUE_TYPE: 'ELECTRICAL', DESCRIPTION: 'Light fixture not working in bedroom', STATUS: 'IN_PROGRESS', CREATED_DATE: '2026-07-28T10:30:00', ASSIGNED_TO: 'Jane Electrician', RESOLVED_DATE: null, NOTES: '' },
+  { ID: 3, ROOM_ID: 7, ISSUE_TYPE: 'HVAC', DESCRIPTION: 'AC unit making strange noise', STATUS: 'OPEN', CREATED_DATE: '2026-07-28T14:15:00', ASSIGNED_TO: 'Bob HVAC', RESOLVED_DATE: null, NOTES: '' },
+]
+
+let STAFF = [
+  { ID: 1, FULL_NAME: 'Alice Manager', EMAIL: 'alice@altonshotel.com', PHONE: '+1-555-0201', DEPARTMENT: 'Management', POSITION: 'Front Desk Manager', SALARY: 45000, HIRE_DATE: '2025-01-15', IS_ACTIVE: 1 },
+  { ID: 2, FULL_NAME: 'Bob Receptionist', EMAIL: 'bob@altonshotel.com', PHONE: '+1-555-0202', DEPARTMENT: 'Front Desk', POSITION: 'Receptionist', SALARY: 32000, HIRE_DATE: '2025-03-01', IS_ACTIVE: 1 },
+  { ID: 3, FULL_NAME: 'Carol Housekeeper', EMAIL: 'carol@altonshotel.com', PHONE: '+1-555-0203', DEPARTMENT: 'Housekeeping', POSITION: 'Housekeeper', SALARY: 28000, HIRE_DATE: '2025-02-10', IS_ACTIVE: 1 },
+  { ID: 4, FULL_NAME: 'Dave Maintenance', EMAIL: 'dave@altonshotel.com', PHONE: '+1-555-0204', DEPARTMENT: 'Maintenance', POSITION: 'Maintenance Technician', SALARY: 30000, HIRE_DATE: '2025-04-20', IS_ACTIVE: 1 },
+  { ID: 5, FULL_NAME: 'Eve Concierge', EMAIL: 'eve@altonshotel.com', PHONE: '+1-555-0205', DEPARTMENT: 'Concierge', POSITION: 'Concierge', SALARY: 35000, HIRE_DATE: '2025-05-05', IS_ACTIVE: 1 },
+]
+
+let PAYROLL = [
+  { ID: 1, STAFF_ID: 1, MONTH: '2026-05', SALARY_PAID: 3750, PAYMENT_DATE: '2026-05-31' },
+  { ID: 2, STAFF_ID: 1, MONTH: '2026-06', SALARY_PAID: 3750, PAYMENT_DATE: '2026-06-30' },
+  { ID: 3, STAFF_ID: 1, MONTH: '2026-07', SALARY_PAID: 3750, PAYMENT_DATE: '2026-07-31' },
+  { ID: 4, STAFF_ID: 2, MONTH: '2026-05', SALARY_PAID: 2667, PAYMENT_DATE: '2026-05-31' },
+  { ID: 5, STAFF_ID: 2, MONTH: '2026-06', SALARY_PAID: 2667, PAYMENT_DATE: '2026-06-30' },
+  { ID: 6, STAFF_ID: 2, MONTH: '2026-07', SALARY_PAID: 2667, PAYMENT_DATE: '2026-07-31' },
+  { ID: 7, STAFF_ID: 3, MONTH: '2026-05', SALARY_PAID: 2333, PAYMENT_DATE: '2026-05-31' },
+  { ID: 8, STAFF_ID: 3, MONTH: '2026-06', SALARY_PAID: 2333, PAYMENT_DATE: '2026-06-30' },
+  { ID: 9, STAFF_ID: 3, MONTH: '2026-07', SALARY_PAID: 2333, PAYMENT_DATE: '2026-07-31' },
+  { ID: 10, STAFF_ID: 4, MONTH: '2026-06', SALARY_PAID: 2500, PAYMENT_DATE: '2026-06-30' },
+  { ID: 11, STAFF_ID: 4, MONTH: '2026-07', SALARY_PAID: 2500, PAYMENT_DATE: '2026-07-31' },
+  { ID: 12, STAFF_ID: 5, MONTH: '2026-06', SALARY_PAID: 2917, PAYMENT_DATE: '2026-06-30' },
+  { ID: 13, STAFF_ID: 5, MONTH: '2026-07', SALARY_PAID: 2917, PAYMENT_DATE: '2026-07-31' },
+]
+
 // --- Mock Connection ---
 class MockConnection {
   async execute(sql: string, binds: Record<string, unknown> = {}) {
@@ -261,6 +291,24 @@ class MockConnection {
       if (binds.status) filtered = filtered.filter(r => r.STATUS === binds.status)
       if (binds.guest_id) filtered = filtered.filter(r => r.GUEST_ID === Number(binds.guest_id))
       rows = filtered.map(r => [r.RESERVATION_ID, r.GUEST_ID, r.ROOM_TYPE_ID, r.CHECK_IN_DATE, r.CHECK_OUT_DATE, r.STATUS, r.SPECIAL_REQUESTS, r.CREATED_BY, r.CREATED_AT, r.UPDATED_AT])
+    } else if (upper.includes('FROM BOOKINGS') && upper.includes('JOIN ROOMS') && upper.includes('JOIN RESERVATIONS') && upper.includes('JOIN GUESTS')) {
+      // Housekeeping tasks query with joins
+      let filtered = [...BOOKINGS]
+      if (binds.today) filtered = filtered.filter(b => b.CHECK_OUT_DATE === binds.today)
+      if (binds.status) filtered = filtered.filter(b => b.STATUS === binds.status)
+      rows = filtered.map(b => {
+        const room = ROOMS.find(r => r.ROOM_ID === b.ROOM_ID)
+        const reservation = RESERVATIONS.find(r => r.RESERVATION_ID === b.RESERVATION_ID)
+        const guest = reservation ? GUESTS.find(g => g.GUEST_ID === reservation.GUEST_ID) : null
+        return [
+          b.BOOKING_ID,
+          b.ROOM_ID,
+          room?.ROOM_NUMBER || '',
+          b.CHECK_OUT_DATE,
+          guest ? `${guest.FIRST_NAME} ${guest.LAST_NAME}` : '',
+          '',
+        ]
+      })
     } else if (upper.includes('FROM BOOKINGS')) {
       let filtered = [...BOOKINGS]
       const boundBookingId = binds.booking_id || binds.p_booking_id
@@ -300,6 +348,35 @@ class MockConnection {
       const boundPayInvId = binds.invoice_id
       if (boundPayInvId) filtered = filtered.filter(p => p.INVOICE_ID === Number(boundPayInvId))
       rows = filtered.map(p => [p.PAYMENT_ID, p.INVOICE_ID, p.AMOUNT, p.PAYMENT_METHOD, p.PAYMENT_DATE, p.REFERENCE_NUMBER, p.RECEIVED_BY])
+    } else if (upper.includes('FROM MAINTENANCE')) {
+      let filtered = [...MAINTENANCE]
+      if (binds.status) filtered = filtered.filter(m => m.STATUS === binds.status)
+      if (binds.id || binds.p_id) {
+        const boundId = binds.id || binds.p_id
+        filtered = filtered.filter(m => m.ID === Number(boundId))
+      }
+      if (binds.room_id) filtered = filtered.filter(m => m.ROOM_ID === Number(binds.room_id))
+      if (upper.includes('WHERE RESOLVED = FALSE') || (upper.includes('WHERE') && upper.includes("STATUS != 'RESOLVED'"))) {
+        filtered = filtered.filter(m => m.STATUS !== 'RESOLVED')
+      }
+      rows = filtered.map(m => [m.ID, m.ROOM_ID, m.ISSUE_TYPE, m.DESCRIPTION, m.STATUS, m.CREATED_DATE, m.ASSIGNED_TO, m.RESOLVED_DATE, m.NOTES])
+    } else if (upper.includes('FROM STAFF')) {
+      let filtered = [...STAFF]
+      const boundId = binds.id || binds.p_id
+      if (boundId) filtered = filtered.filter(s => s.ID === Number(boundId))
+      if (binds.is_active !== undefined) filtered = filtered.filter(s => s.IS_ACTIVE === Number(binds.is_active))
+      if (binds.department) filtered = filtered.filter(s => s.DEPARTMENT === binds.department)
+      if (upper.includes('WHERE IS_ACTIVE = TRUE') || upper.includes("WHERE IS_ACTIVE = 'TRUE'") || upper.includes('WHERE IS_ACTIVE = 1')) {
+        filtered = filtered.filter(s => s.IS_ACTIVE === 1)
+      }
+      rows = filtered.map(s => [s.ID, s.FULL_NAME, s.EMAIL, s.PHONE, s.DEPARTMENT, s.POSITION, s.SALARY, s.HIRE_DATE, s.IS_ACTIVE])
+    } else if (upper.includes('FROM PAYROLL')) {
+      let filtered = [...PAYROLL]
+      const boundStaffId = binds.staff_id || binds.p_staff_id
+      if (boundStaffId) filtered = filtered.filter(p => p.STAFF_ID === Number(boundStaffId))
+      const boundPayId = binds.id || binds.p_id
+      if (boundPayId) filtered = filtered.filter(p => p.ID === Number(boundPayId))
+      rows = filtered.map(p => [p.ID, p.STAFF_ID, p.MONTH, p.SALARY_PAID, p.PAYMENT_DATE])
     }
 
     return { rows, metaData: rows.length > 0 ? rows[0].map(() => ({})) : [] }
@@ -349,6 +426,18 @@ class MockConnection {
     }
     if (upper.includes('INTO PAYMENTS')) {
       PAYMENTS.push({ PAYMENT_ID: id, INVOICE_ID: Number(binds.invoice_id), AMOUNT: Number(binds.amount || 0), PAYMENT_METHOD: String(binds.payment_method || 'CASH'), PAYMENT_DATE: now, REFERENCE_NUMBER: String(binds.reference_number || ''), RECEIVED_BY: Number(binds.received_by) })
+      return { rowsAffected: 1, lastRowid: id }
+    }
+    if (upper.includes('INTO MAINTENANCE')) {
+      MAINTENANCE.push({ ID: id, ROOM_ID: Number(binds.room_id), ISSUE_TYPE: String(binds.issue_type || ''), DESCRIPTION: String(binds.description || ''), STATUS: String(binds.status || 'OPEN'), CREATED_DATE: new Date().toISOString(), ASSIGNED_TO: String(binds.assigned_to || ''), RESOLVED_DATE: null, NOTES: String(binds.notes || '') })
+      return { rowsAffected: 1, lastRowid: id }
+    }
+    if (upper.includes('INTO STAFF')) {
+      STAFF.push({ ID: id, FULL_NAME: String(binds.full_name || ''), EMAIL: String(binds.email || ''), PHONE: String(binds.phone || ''), DEPARTMENT: String(binds.department || ''), POSITION: String(binds.position || ''), SALARY: Number(binds.salary || 0), HIRE_DATE: String(binds.hire_date || ''), IS_ACTIVE: 1 })
+      return { rowsAffected: 1, lastRowid: id }
+    }
+    if (upper.includes('INTO PAYROLL')) {
+      PAYROLL.push({ ID: id, STAFF_ID: Number(binds.staff_id), MONTH: String(binds.month || ''), SALARY_PAID: Number(binds.salary_paid || 0), PAYMENT_DATE: String(binds.payment_date || '') })
       return { rowsAffected: 1, lastRowid: id }
     }
     if (upper.includes('INTO AUDIT_LOG')) {
@@ -422,6 +511,40 @@ class MockConnection {
       if (statusMatch && !binds.status && binds.booking_id) {
         const b = BOOKINGS.find(b => b.BOOKING_ID === Number(binds.booking_id))
         if (b) b.STATUS = statusMatch[1]
+      }
+      return { rowsAffected: 1 }
+    }
+    if (upper.includes('UPDATE MAINTENANCE')) {
+      const boundId = binds.id || binds.p_id
+      if (boundId) {
+        const m = MAINTENANCE.find(m => m.ID === Number(boundId))
+        if (m) {
+          if (binds.status) m.STATUS = String(binds.status)
+          if (binds.notes) m.NOTES = String(binds.notes)
+          if (binds.resolved_date) m.RESOLVED_DATE = String(binds.resolved_date)
+          if (binds.assigned_to) m.ASSIGNED_TO = String(binds.assigned_to)
+        }
+      }
+      const statusMatch = upper.match(/SET\s+STATUS\s*=\s*'(\w+)'/)
+      if (statusMatch && !binds.status && boundId) {
+        const m = MAINTENANCE.find(m => m.ID === Number(boundId))
+        if (m) m.STATUS = statusMatch[1]
+      }
+      return { rowsAffected: 1 }
+    }
+    if (upper.includes('UPDATE STAFF')) {
+      const boundId = binds.id || binds.p_id
+      if (boundId) {
+        const s = STAFF.find(s => s.ID === Number(boundId))
+        if (s) {
+          if (binds.full_name) s.FULL_NAME = String(binds.full_name)
+          if (binds.email) s.EMAIL = String(binds.email)
+          if (binds.phone) s.PHONE = String(binds.phone)
+          if (binds.department) s.DEPARTMENT = String(binds.department)
+          if (binds.position) s.POSITION = String(binds.position)
+          if (binds.salary !== undefined) s.SALARY = Number(binds.salary)
+          if (binds.is_active !== undefined) s.IS_ACTIVE = Number(binds.is_active)
+        }
       }
       return { rowsAffected: 1 }
     }

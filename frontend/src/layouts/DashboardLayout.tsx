@@ -9,6 +9,10 @@ const navigation = [
   { name: 'Reservations', href: '/dashboard/reservations', icon: '📅', roles: ['ADMIN', 'RECEPTIONIST'] },
   { name: 'Check-in', href: '/dashboard/checkin', icon: '🔑', roles: ['ADMIN', 'RECEPTIONIST'] },
   { name: 'Check-out', href: '/dashboard/checkout', icon: '🚪', roles: ['ADMIN', 'RECEPTIONIST'] },
+  { name: 'Maintenance', href: '/dashboard/maintenance', icon: '🔧', roles: ['ADMIN', 'RECEPTIONIST', 'MANAGER'] },
+  { name: 'Housekeeping', href: '/dashboard/housekeeping', icon: '🧹', roles: ['ADMIN', 'RECEPTIONIST', 'MANAGER'] },
+  { name: 'Staff', href: '/dashboard/staff', icon: '👥', roles: ['ADMIN', 'MANAGER'] },
+  { name: 'Schedule', href: '/dashboard/schedule', icon: '📋', roles: ['ADMIN', 'MANAGER'] },
   { name: 'Billing', href: '/dashboard/billing', icon: '💰', roles: ['ADMIN', 'RECEPTIONIST', 'MANAGER'] },
   { name: 'Reports', href: '/dashboard/reports', icon: '📈', roles: ['ADMIN', 'MANAGER'] },
 ]

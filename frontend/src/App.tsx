@@ -11,6 +11,10 @@ import CheckInPage from './pages/CheckInPage'
 import CheckOutPage from './pages/CheckOutPage'
 import BillingPage from './pages/BillingPage'
 import ReportsPage from './pages/ReportsPage'
+import MaintenancePage from './pages/MaintenancePage'
+import HousekeepingPage from './pages/HousekeepingPage'
+import StaffPage from './pages/StaffPage'
+import SchedulePage from './pages/SchedulePage'
 
 function App() {
   return (
@@ -33,6 +37,10 @@ function App() {
           <Route path="checkout" element={<CheckOutPage />} />
           <Route path="billing" element={<BillingPage />} />
           <Route path="reports" element={<ReportsPage />} />
+          <Route path="maintenance" element={<MaintenancePage />} />
+          <Route path="housekeeping" element={<HousekeepingPage />} />
+          <Route path="staff" element={<StaffPage />} />
+          <Route path="schedule" element={<SchedulePage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

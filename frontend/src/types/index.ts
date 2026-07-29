@@ -250,6 +250,51 @@ export interface RecordPaymentRequest {
   reference_number?: string
 }
 
+// --- Maintenance ---
+export interface MaintenanceRecord {
+  id: number
+  room_id: number
+  room_number: string
+  issue_type: string
+  description: string
+  status: string
+  created_date: string
+  assigned_to: string
+  resolved_date: string | null
+  notes: string
+}
+
+// --- Housekeeping ---
+export interface HousekeepingTask {
+  booking_id: number
+  room_id: number
+  room_number: string
+  check_out_date: string
+  guest_name: string
+  assigned_staff: string
+}
+
+// --- Staff ---
+export interface StaffMember {
+  id: number
+  full_name: string
+  email: string
+  phone: string
+  department: string
+  position: string
+  salary: number
+  hire_date: string
+  is_active: number
+}
+
+export interface PayrollRecord {
+  id: number
+  staff_id: number
+  month: string
+  salary_paid: number
+  payment_date: string
+}
+
 // --- Reports ---
 export interface ReportSummary {
   totalRooms: number

@@ -268,3 +268,85 @@ export interface RecordPaymentRequest {
   payment_method: 'CASH' | 'CARD' | 'BANK_TRANSFER'
   reference_number?: string
 }
+
+// --- Maintenance ---
+export interface DbMaintenance {
+  ID: number
+  ROOM_ID: number
+  ISSUE_TYPE: string
+  DESCRIPTION: string
+  STATUS: string
+  CREATED_DATE: string
+  ASSIGNED_TO: string
+  RESOLVED_DATE: string | null
+  NOTES: string
+}
+
+export interface CreateMaintenanceRequest {
+  room_id: number
+  issue_type: string
+  description: string
+}
+
+export interface ResolveMaintenanceRequest {
+  notes: string
+  resolved_date: string
+}
+
+// --- Housekeeping ---
+export interface DbHousekeepingTask {
+  BOOKING_ID: number
+  ROOM_ID: number
+  ROOM_NUMBER: string
+  CHECK_OUT_DATE: string
+  GUEST_NAME: string
+  ASSIGNED_STAFF: string
+}
+
+// --- Staff ---
+export interface DbStaff {
+  ID: number
+  FULL_NAME: string
+  EMAIL: string
+  PHONE: string
+  DEPARTMENT: string
+  POSITION: string
+  SALARY: number
+  HIRE_DATE: string
+  IS_ACTIVE: number
+}
+
+export interface CreateStaffRequest {
+  full_name: string
+  email: string
+  phone: string
+  department: string
+  position: string
+  salary: number
+  hire_date: string
+}
+
+export interface UpdateStaffRequest {
+  full_name?: string
+  email?: string
+  phone?: string
+  department?: string
+  position?: string
+  salary?: number
+}
+
+// --- Payroll ---
+export interface DbPayroll {
+  ID: number
+  STAFF_ID: number
+  MONTH: string
+  SALARY_PAID: number
+  PAYMENT_DATE: string
+}
+
+export interface CreatePayrollRequest {
+  staff_id: number
+  month: string
+  salary_paid: number
+  payment_date: string
+}
