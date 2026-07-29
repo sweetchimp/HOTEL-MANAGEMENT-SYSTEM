@@ -124,7 +124,78 @@ class MockConnection {
     const upper = sql.toUpperCase()
     let rows: unknown[][] = []
 
-    if (upper.includes('FROM USERS')) {
+    // Aggregates and joins — check before individual table handlers
+    if (upper.includes('COUNT(*)')) {
+      if (upper.includes('FROM ROOMS')) {
+        let filtered = [...ROOMS]
+        if (binds.status) filtered = filtered.filter(r => r.STATUS === binds.status)
+        if (binds.type_id) filtered = filtered.filter(r => r.TYPE_ID === Number(binds.type_id))
+        rows = [[filtered.length]]
+      } else if (upper.includes('FROM RESERVATIONS')) {
+        let filtered = [...RESERVATIONS]
+        if (binds.status) filtered = filtered.filter(r => r.STATUS === binds.status)
+        if (binds.today) {
+          filtered = filtered.filter(r => r.CHECK_IN_DATE === binds.today || r.CHECK_OUT_DATE === binds.today)
+        }
+        rows = [[filtered.length]]
+      } else if (upper.includes('FROM GUESTS')) {
+        rows = [[GUESTS.length]]
+      } else {
+        rows = [[0]]
+      }
+    } else if (upper.includes('NVL(SUM(')) {
+      if (upper.includes('INVOICE_ITEMS')) {
+        const boundInvSum = binds.invoice_id || binds.p_invoice_id
+        const total = INVOICE_ITEMS.filter(i => Number(boundInvSum) ? i.INVOICE_ID === Number(boundInvSum) : true).reduce((sum, i) => sum + i.TOTAL, 0)
+        rows = [[total]]
+      } else if (upper.includes('PAYMENTS')) {
+        const boundPaySum = binds.invoice_id || binds.p_invoice_id
+        const paid = PAYMENTS.filter(p => Number(boundPaySum) ? p.INVOICE_ID === Number(boundPaySum) : true).reduce((sum, p) => sum + p.AMOUNT, 0)
+        rows = [[paid]]
+      } else if (upper.includes('INVOICES')) {
+        const total = INVOICES.reduce((sum, i) => sum + i.TOTAL_AMOUNT, 0)
+        rows = [[total]]
+      } else {
+        rows = [[0]]
+      }
+    } else if (upper.includes('FROM CHECKINS') && upper.includes('JOIN')) {
+      const result = CHECKINS.map(c => {
+        const booking = BOOKINGS.find(b => b.BOOKING_ID === c.BOOKING_ID)
+        if (!booking) return null
+        const reservation = RESERVATIONS.find(r => r.RESERVATION_ID === booking.RESERVATION_ID)
+        if (!reservation) return null
+        const guest = GUESTS.find(g => g.GUEST_ID === reservation.GUEST_ID)
+        if (!guest) return null
+        const room = ROOMS.find(r => r.ROOM_ID === booking.ROOM_ID)
+        if (!room) return null
+        return [c.CHECKIN_ID, c.BOOKING_ID, c.ACTUAL_CHECK_IN, c.CHECKED_IN_BY, c.NOTES,
+                booking.ROOM_ID, booking.CHECK_IN_DATE, booking.CHECK_OUT_DATE, booking.RATE_PER_NIGHT,
+                reservation.RESERVATION_ID, reservation.GUEST_ID, reservation.ROOM_TYPE_ID, reservation.STATUS,
+                guest.FIRST_NAME, guest.LAST_NAME, guest.EMAIL, guest.PHONE,
+                room.ROOM_NUMBER, room.FLOOR, room.STATUS]
+      }).filter(Boolean)
+      rows = result as unknown[][]
+    } else if (upper.includes('FROM CHECKOUTS') && upper.includes('JOIN')) {
+      const result = CHECKOUTS.map(co => {
+        const checkin = CHECKINS.find(c => c.CHECKIN_ID === co.CHECKIN_ID)
+        if (!checkin) return null
+        const booking = BOOKINGS.find(b => b.BOOKING_ID === checkin.BOOKING_ID)
+        if (!booking) return null
+        const reservation = RESERVATIONS.find(r => r.RESERVATION_ID === booking.RESERVATION_ID)
+        if (!reservation) return null
+        const guest = GUESTS.find(g => g.GUEST_ID === reservation.GUEST_ID)
+        if (!guest) return null
+        const room = ROOMS.find(r => r.ROOM_ID === booking.ROOM_ID)
+        if (!room) return null
+        return [co.CHECKOUT_ID, co.CHECKIN_ID, co.ACTUAL_CHECK_OUT, co.CHECKED_OUT_BY, co.NOTES,
+                checkin.BOOKING_ID, checkin.ACTUAL_CHECK_IN,
+                booking.ROOM_ID, booking.CHECK_IN_DATE, booking.CHECK_OUT_DATE, booking.RATE_PER_NIGHT,
+                reservation.RESERVATION_ID, reservation.GUEST_ID, reservation.ROOM_TYPE_ID,
+                guest.FIRST_NAME, guest.LAST_NAME, guest.EMAIL, guest.PHONE,
+                room.ROOM_NUMBER, room.FLOOR]
+      }).filter(Boolean)
+      rows = result as unknown[][]
+    } else if (upper.includes('FROM USERS')) {
       const boundUser = binds.username || binds.p_username
       if (boundUser) {
         const u = USERS.find(u => u.USERNAME === String(boundUser))
@@ -211,28 +282,6 @@ class MockConnection {
       const boundPayInvId = binds.invoice_id
       if (boundPayInvId) filtered = filtered.filter(p => p.INVOICE_ID === Number(boundPayInvId))
       rows = filtered.map(p => [p.PAYMENT_ID, p.INVOICE_ID, p.AMOUNT, p.PAYMENT_METHOD, p.PAYMENT_DATE, p.REFERENCE_NUMBER, p.RECEIVED_BY])
-    } else if (upper.includes('COUNT(*)')) {
-      // Generic count
-      if (upper.includes('FROM ROOMS')) {
-        let filtered = [...ROOMS]
-        if (binds.status) filtered = filtered.filter(r => r.STATUS === binds.status)
-        if (binds.type_id) filtered = filtered.filter(r => r.TYPE_ID === Number(binds.type_id))
-        rows = [[filtered.length]]
-      } else {
-        rows = [[0]]
-      }
-    } else if (upper.includes('NVL(SUM')) {
-      if (upper.includes('INVOICE_ITEMS')) {
-        const boundInvSum = binds.invoice_id || binds.p_invoice_id
-        const total = INVOICE_ITEMS.filter(i => Number(boundInvSum) ? i.INVOICE_ID === Number(boundInvSum) : true).reduce((sum, i) => sum + i.TOTAL, 0)
-        rows = [[total]]
-      } else if (upper.includes('PAYMENTS')) {
-        const boundPaySum = binds.invoice_id || binds.p_invoice_id
-        const paid = PAYMENTS.filter(p => Number(boundPaySum) ? p.INVOICE_ID === Number(boundPaySum) : true).reduce((sum, p) => sum + p.AMOUNT, 0)
-        rows = [[paid]]
-      } else {
-        rows = [[0]]
-      }
     }
 
     return { rows, metaData: rows.length > 0 ? rows[0].map(() => ({})) : [] }
@@ -313,6 +362,15 @@ class MockConnection {
         const r = ROOMS.find(r => r.ROOM_ID === Number(boundRoomId))
         if (r && binds.status) r.STATUS = String(binds.status)
       }
+      // Handle text status values from SQL like 'OCCUPIED'
+      const statusMatch = upper.match(/SET\s+STATUS\s*=\s*'(\w+)'/)
+      if (statusMatch && !binds.status) {
+        const newStatus = statusMatch[1]
+        if (boundRoomId) {
+          const r = ROOMS.find(r => r.ROOM_ID === Number(boundRoomId))
+          if (r) r.STATUS = newStatus
+        }
+      }
       return { rowsAffected: 1 }
     }
     if (upper.includes('UPDATE RESERVATIONS')) {
@@ -321,6 +379,18 @@ class MockConnection {
         const r = RESERVATIONS.find(r => r.RESERVATION_ID === Number(boundResId))
         if (r && binds.status) r.STATUS = String(binds.status)
       }
+      // Handle subquery: UPDATE RESERVATIONS WHERE RESERVATION_ID = (SELECT ... FROM BOOKINGS WHERE BOOKING_ID = :booking_id)
+      const bookingIdMatch = upper.match(/BOOKING_ID\s*=\s*:BOOKING_ID/)
+      if (bookingIdMatch && binds.booking_id) {
+        const booking = BOOKINGS.find(b => b.BOOKING_ID === Number(binds.booking_id))
+        if (booking) {
+          const r = RESERVATIONS.find(r => r.RESERVATION_ID === booking.RESERVATION_ID)
+          if (r) {
+            const statusMatch = upper.match(/SET\s+STATUS\s*=\s*'(\w+)'/)
+            if (statusMatch) r.STATUS = statusMatch[1]
+          }
+        }
+      }
       return { rowsAffected: 1 }
     }
     if (upper.includes('UPDATE BOOKINGS')) {
@@ -328,6 +398,12 @@ class MockConnection {
       if (boundBookingId) {
         const b = BOOKINGS.find(b => b.BOOKING_ID === Number(boundBookingId))
         if (b && binds.status) b.STATUS = String(binds.status)
+      }
+      // Handle text status values
+      const statusMatch = upper.match(/SET\s+STATUS\s*=\s*'(\w+)'/)
+      if (statusMatch && !binds.status && binds.booking_id) {
+        const b = BOOKINGS.find(b => b.BOOKING_ID === Number(binds.booking_id))
+        if (b) b.STATUS = statusMatch[1]
       }
       return { rowsAffected: 1 }
     }

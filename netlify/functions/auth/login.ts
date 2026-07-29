@@ -7,7 +7,7 @@ import { successResponse, errorResponse, optionsResponse } from '../_shared/resp
 import { AppError, BadRequestError } from '../_shared/middleware'
 import { generateAccessToken, generateRefreshToken } from '../_shared/jwt'
 import { mapRows, mapRow } from '../_shared/row-mapper'
-import { compare } from 'bcryptjs'
+import bcrypt from 'bcryptjs'
 import type { DbUser, DbRole, LoginRequest } from '../_shared/types'
 
 export default async (req: Request) => {
@@ -40,7 +40,7 @@ export default async (req: Request) => {
         return { error: 'ACCOUNT_LOCKED' }
       }
 
-      const passwordMatch = await compare(body.password, user.PASSWORD_HASH)
+      const passwordMatch = await bcrypt.compare(body.password, user.PASSWORD_HASH)
       if (!passwordMatch) {
         await conn.execute(
           'UPDATE USERS SET FAILED_LOGIN_ATTEMPTS = FAILED_LOGIN_ATTEMPTS + 1, UPDATED_AT = CURRENT_TIMESTAMP WHERE USERNAME = :username',

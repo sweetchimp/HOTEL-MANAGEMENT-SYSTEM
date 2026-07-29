@@ -2,23 +2,20 @@ import { useState, useCallback, type ReactNode } from 'react'
 import { AuthContext, type AuthContextType } from '../../context/AuthContext'
 import type { User } from '../../types'
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(() => {
-    const stored = localStorage.getItem('ahms_user')
-    return stored ? JSON.parse(stored) : null
-  })
+const ADMIN_USER: User = {
+  user_id: 1,
+  username: 'admin',
+  full_name: 'System Administrator',
+  email: 'admin@altonshotel.com',
+  role: 'ADMIN',
+  is_active: true,
+}
 
-  const login = useCallback((userData: User, accessToken: string, _refreshToken: string) => {
-    localStorage.setItem('ahms_user', JSON.stringify(userData))
-    localStorage.setItem('ahms_token', accessToken)
-    setUser(userData)
-  }, [])
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user] = useState<User>(ADMIN_USER)
 
   const logout = useCallback(() => {
-    localStorage.removeItem('ahms_user')
-    localStorage.removeItem('ahms_token')
-    localStorage.removeItem('ahms_refresh_token')
-    setUser(null)
+    window.location.href = '/'
   }, [])
 
   const getToken = useCallback(() => {
@@ -27,8 +24,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const value: AuthContextType = {
     user,
-    isAuthenticated: !!user,
-    login,
+    isAuthenticated: true,
     logout,
     getToken,
   }

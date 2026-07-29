@@ -121,3 +121,92 @@ export interface PaginatedResponse<T> {
   page: number
   pageSize: number
 }
+
+export interface DashboardStats {
+  todayArrivals: number
+  todayDepartures: number
+  occupancyRate: number
+  todayRevenue: number
+}
+
+export interface CheckinRecord {
+  CHECKIN_ID: number
+  BOOKING_ID: number
+  ACTUAL_CHECK_IN: string
+  CHECKED_IN_BY: number
+  NOTES: string
+  ROOM_ID: number
+  CHECK_IN_DATE: string
+  CHECK_OUT_DATE: string
+  RATE_PER_NIGHT: number
+  RESERVATION_ID: number
+  GUEST_ID: number
+  ROOM_TYPE_ID: number
+  RESERVATION_STATUS: string
+  FIRST_NAME: string
+  LAST_NAME: string
+  EMAIL: string
+  PHONE: string
+  ROOM_NUMBER: string
+  FLOOR: number
+  ROOM_STATUS: string
+}
+
+export interface CheckoutRecord {
+  CHECKOUT_ID: number
+  CHECKIN_ID: number
+  ACTUAL_CHECK_OUT: string
+  CHECKED_OUT_BY: number
+  NOTES: string
+  BOOKING_ID: number
+  ACTUAL_CHECK_IN: string
+  ROOM_ID: number
+  CHECK_IN_DATE: string
+  CHECK_OUT_DATE: string
+  RATE_PER_NIGHT: number
+  RESERVATION_ID: number
+  GUEST_ID: number
+  ROOM_TYPE_ID: number
+  FIRST_NAME: string
+  LAST_NAME: string
+  EMAIL: string
+  PHONE: string
+  ROOM_NUMBER: string
+  FLOOR: number
+}
+
+export interface RoomListItem {
+  ROOM_ID: number
+  ROOM_NUMBER: string
+  TYPE_ID: number
+  FLOOR: number
+  STATUS: string
+  DESCRIPTION: string
+}
+
+export interface GuestListItem {
+  GUEST_ID: number
+  FIRST_NAME: string
+  LAST_NAME: string
+  EMAIL: string
+  PHONE: string
+  ID_TYPE: string
+  ID_NUMBER: string
+  ADDRESS: string
+  NATIONALITY: string
+  CREATED_AT: string
+  UPDATED_AT: string
+}
+
+export interface ReservationListItem {
+  RESERVATION_ID: number
+  GUEST_ID: number
+  ROOM_TYPE_ID: number
+  CHECK_IN_DATE: string
+  CHECK_OUT_DATE: string
+  STATUS: string
+  SPECIAL_REQUESTS: string
+  CREATED_BY: number
+  CREATED_AT: string
+  UPDATED_AT: string
+}

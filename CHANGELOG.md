@@ -163,3 +163,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 24 new backend files across auth, rooms, guests, reservations
 - 9 modified files (configs, DB layer, types, frontend)
 - Total backend: 17 API endpoints ready for testing
+
+## [0.5.0] - 2026-07-29
+
+### Added
+
+- **Welcome Page** — Navy gradient landing page with ALTONS HOTEL branding, feature list, and "Go to Dashboard" button; replaces login as the entry point
+
+### Changed
+
+- **AuthProvider** — Auto-sets ADMIN user on mount (no login required in dev mode); `isAuthenticated` always `true`; removed `login` method
+- **AuthContext** — Simplified interface (removed `login`)
+- **App.tsx** — `/` points to WelcomePage, `/dashboard` and child routes protected but auto-authenticated; removed `/login` route
+- **LoginPage** — Removed (unused)
+
+## [0.4.0] - 2026-07-28
+
+### Added
+
+- **Dashboard Stats Endpoint**
+  - `GET /api/dashboard/stats` — Today's arrivals, departures, occupancy rate, revenue
+  - Returns real-time metrics from DB aggregations
+
+- **Check-in Module (2 endpoints)**
+  - `POST /api/checkin/process` — Process guest check-in with room assignment
+  - `GET /api/checkin/list` — List all check-ins with guest/room details (JOIN query)
+
+- **Check-out Module (2 endpoints)**
+  - `POST /api/checkout/process` — Process guest check-out, auto-complete booking/reservation
+  - `GET /api/checkout/list` — List all check-outs with full guest/room details (JOIN query)
+
+### Changed
+
+- **Dashboard Page** — Fetches real stats from API, loading states, error handling
+
+- **Rooms Page** — Full CRUD with table view, status/type/floor filters, pagination, admin-only actions (create/edit/delete/status change), modal form
+
+- **Guests Page** — Full CRUD with table view, debounced search, pagination, modal form with ID type dropdown
+
+- **Reservations Page** — Full CRUD with table view, status filter, guest search autocomplete, confirm/cancel actions, modal form with date pickers
+
+- **Check-in Page** — Shows confirmed arrivals, room availability check, check-in processing with room assignment, recent check-ins history
+
+- **Check-out Page** — Shows current guests, check-out processing with notes, recent check-outs history
+
+- **Frontend Types** — Added DashboardStats, CheckinRecord, CheckoutRecord, RoomListItem, GuestListItem, ReservationListItem interfaces
+
+- **Mock DB** — Enhanced to handle JOIN queries (checkin/checkout lists), dashboard COUNT/SUM queries, subquery UPDATEs, text status values in SQL
+
+### Infrastructure
+
+- 6 new backend files (dashboard/stats, checkin/process, checkin/list, checkout/process, checkout/list)
+- 7 modified frontend pages (Dashboard, Rooms, Guests, Reservations, Check-in, Check-out)
+- 2 modified backend files (mock DB, types)
+- Total backend: 23 API endpoints (4 new)

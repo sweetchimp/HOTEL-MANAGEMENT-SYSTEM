@@ -5,19 +5,22 @@
   "type": "module",
   "description": "ALTONSHOTEL Management System — Netlify Functions Backend",
   "scripts": {
-    "dev": "netlify dev",
+    "dev:api": "npx tsx dev-server.js",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev": "echo 'Run these in separate terminals:' && echo '  Terminal 1: npm run dev:api' && echo '  Terminal 2: npm run dev:frontend'",
     "build:frontend": "cd frontend && npm run build",
-    "start": "netlify dev --port 8888"
+    "start": "node dev-server.js"
   },
   "dependencies": {
-    "oracledb": "^6.6.0",
-    "jsonwebtoken": "^9.0.2",
+    "@netlify/functions": "^2.8.0",
     "bcryptjs": "^2.4.3",
-    "@netlify/functions": "^2.8.0"
+    "jsonwebtoken": "^9.0.2",
+    "oracledb": "^6.6.0"
   },
   "devDependencies": {
-    "@types/jsonwebtoken": "^9.0.6",
     "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.6",
+    "tsx": "^4.23.1",
     "typescript": "^5.5.4"
   },
   "engines": {

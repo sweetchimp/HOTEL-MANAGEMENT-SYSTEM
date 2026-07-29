@@ -26,7 +26,9 @@ async function createOraclePool() {
     pool = await oracledb.createPool({
       user: process.env.ORACLE_USER,
       password: process.env.ORACLE_PASSWORD,
-      connectionString: `${process.env.ORACLE_HOST || 'localhost'}:${process.env.ORACLE_PORT || '1521'}/${process.env.ORACLE_SERVICE_NAME || 'XEPDB1'}`,
+      connectionString: process.env.ORACLE_SID
+        ? `${process.env.ORACLE_HOST || 'localhost'}:${process.env.ORACLE_PORT || '1521'}:${process.env.ORACLE_SID}`
+        : `${process.env.ORACLE_HOST || 'localhost'}:${process.env.ORACLE_PORT || '1521'}/${process.env.ORACLE_SERVICE_NAME || 'XEPDB1'}`,
       poolMin: Number(process.env.ORACLE_POOL_MIN) || 1,
       poolMax: Number(process.env.ORACLE_POOL_MAX) || 5,
       poolIncrement: 1,
