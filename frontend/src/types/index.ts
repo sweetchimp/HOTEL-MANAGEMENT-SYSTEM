@@ -210,3 +210,80 @@ export interface ReservationListItem {
   CREATED_AT: string
   UPDATED_AT: string
 }
+
+// --- Billing ---
+export interface InvoiceListItem {
+  invoice_id: number
+  booking_id: number
+  guest_id: number
+  total_amount: number
+  status: 'PENDING' | 'PAID' | 'PARTIALLY_PAID' | 'CANCELLED'
+  created_at: string
+}
+
+export interface InvoiceDetail {
+  invoice: Invoice
+  items: InvoiceItem[]
+  payments: Payment[]
+}
+
+export interface InvoiceBalance {
+  invoice_id: number
+  total_amount: number
+  total_paid: number
+  balance: number
+}
+
+export interface CreateInvoiceRequest {
+  booking_id: number
+}
+
+export interface AddInvoiceItemRequest {
+  description: string
+  quantity: number
+  unit_price: number
+}
+
+export interface RecordPaymentRequest {
+  amount: number
+  payment_method: PaymentMethod
+  reference_number?: string
+}
+
+// --- Reports ---
+export interface ReportSummary {
+  totalRooms: number
+  occupiedRooms: number
+  occupancyRate: number
+  totalGuests: number
+  totalReservations: number
+  completedBookings: number
+  totalRevenue: number
+  avgRatePerNight: number
+  avgStayLength: number
+}
+
+export interface MonthlyOccupancy {
+  month: string
+  rate: number
+}
+
+export interface MonthlyRevenue {
+  month: string
+  amount: number
+}
+
+export interface RoomTypeReport {
+  type_name: string
+  bookings: number
+  revenue: number
+  avg_rate: number
+}
+
+export interface PopularGuest {
+  guest_id: number
+  first_name: string
+  last_name: string
+  total_stays: number
+  total_spend: number
+}

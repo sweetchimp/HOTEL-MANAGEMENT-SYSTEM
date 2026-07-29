@@ -164,6 +164,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 9 modified files (configs, DB layer, types, frontend)
 - Total backend: 17 API endpoints ready for testing
 
+## [0.6.0] - 2026-07-29
+
+### Added
+
+- **Billing Module — 7 Backend Endpoints**
+  - `GET /api/billing/invoices` — Paginated invoice list with status/guest/date filters
+  - `GET /api/billing/invoices/:id` — Invoice detail with items and payments
+  - `POST /api/billing/invoices` — Create invoice with auto-room-charge from booking
+  - `POST /api/billing/invoices/:id/items` — Add line item (rejects PAID/CANCELLED)
+  - `POST /api/billing/invoices/:id/payments` — Record payment, auto-update status
+  - `GET /api/billing/invoices/:id/balance` — Outstanding balance calculation
+
+- **Reports Module — 5 Backend Endpoints**
+  - `GET /api/reports/summary` — Key metrics (revenue, occupancy, guests, avg stay)
+  - `GET /api/reports/occupancy` — Monthly occupancy rates for last N months
+  - `GET /api/reports/revenue` — Monthly revenue for last N months
+  - `GET /api/reports/room-types` — Revenue and bookings by room type
+  - `GET /api/reports/popular-guests` — Top guests by stays and spend
+
+- **Billing Page** — Full CRUD with invoice list, status filter pills, expandable detail (items + payments tables), create invoice modal, add item modal, record payment modal, balance summary, pagination
+
+- **Reports Page** — Analytics dashboard with period selector, 4 summary cards, CSS bar charts for occupancy and revenue, room type breakdown table, popular guests table, CSV export on all tables
+
+- **Frontend Types** — `InvoiceListItem`, `InvoiceDetail`, `InvoiceBalance`, `ReportSummary`, `MonthlyOccupancy`, `MonthlyRevenue`, `RoomTypeReport`, `PopularGuest`, request types for billing actions
+
+### Changed
+
+- **Mock DB** — Added `FROM INVOICES` and `FROM BOOKINGS` to COUNT handler, `NVL(AVG(...))` support, text status matching in UPDATE INVOICES
+- **dev-server.js** — Added 12 new route entries for billing and report endpoints
+- **db.ts** — Simplified SELECT routing to catch all SELECT queries (not just those with WHERE)
+
+### Infrastructure
+
+- 12 new backend files across billing (7) and reports (5)
+- 3 modified backend files (mock DB, dev-server.js, types)
+- 3 modified frontend files (BillingPage, ReportsPage, types)
+- Total backend: 35 API endpoints (12 new)
+
 ## [0.5.0] - 2026-07-29
 
 ### Added

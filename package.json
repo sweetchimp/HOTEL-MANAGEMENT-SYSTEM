@@ -9,7 +9,7 @@
     "dev:frontend": "cd frontend && npm run dev",
     "dev": "echo 'Run these in separate terminals:' && echo '  Terminal 1: npm run dev:api' && echo '  Terminal 2: npm run dev:frontend'",
     "build:frontend": "cd frontend && npm run build",
-    "start": "node dev-server.js"
+    "start": "npx tsx dev-server.js"
   },
   "dependencies": {
     "@netlify/functions": "^2.8.0",

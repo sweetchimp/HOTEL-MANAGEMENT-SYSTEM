@@ -4,13 +4,13 @@ import type { UserRole } from '../types'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: '📊', roles: ['ADMIN', 'RECEPTIONIST', 'MANAGER'] },
-  { name: 'Rooms', href: '/rooms', icon: '🛏️', roles: ['ADMIN', 'RECEPTIONIST'] },
-  { name: 'Guests', href: '/guests', icon: '👤', roles: ['ADMIN', 'RECEPTIONIST'] },
-  { name: 'Reservations', href: '/reservations', icon: '📅', roles: ['ADMIN', 'RECEPTIONIST'] },
-  { name: 'Check-in', href: '/checkin', icon: '🔑', roles: ['ADMIN', 'RECEPTIONIST'] },
-  { name: 'Check-out', href: '/checkout', icon: '🚪', roles: ['ADMIN', 'RECEPTIONIST'] },
-  { name: 'Billing', href: '/billing', icon: '💰', roles: ['ADMIN', 'RECEPTIONIST', 'MANAGER'] },
-  { name: 'Reports', href: '/reports', icon: '📈', roles: ['ADMIN', 'MANAGER'] },
+  { name: 'Rooms', href: '/dashboard/rooms', icon: '🛏️', roles: ['ADMIN', 'RECEPTIONIST'] },
+  { name: 'Guests', href: '/dashboard/guests', icon: '👤', roles: ['ADMIN', 'RECEPTIONIST'] },
+  { name: 'Reservations', href: '/dashboard/reservations', icon: '📅', roles: ['ADMIN', 'RECEPTIONIST'] },
+  { name: 'Check-in', href: '/dashboard/checkin', icon: '🔑', roles: ['ADMIN', 'RECEPTIONIST'] },
+  { name: 'Check-out', href: '/dashboard/checkout', icon: '🚪', roles: ['ADMIN', 'RECEPTIONIST'] },
+  { name: 'Billing', href: '/dashboard/billing', icon: '💰', roles: ['ADMIN', 'RECEPTIONIST', 'MANAGER'] },
+  { name: 'Reports', href: '/dashboard/reports', icon: '📈', roles: ['ADMIN', 'MANAGER'] },
 ]
 
 function filterByRole(items: typeof navigation, role: UserRole) {
@@ -24,7 +24,7 @@ export default function DashboardLayout() {
 
   const handleLogout = () => {
     logout()
-    navigate('/login')
+    navigate('/')
   }
 
   return (

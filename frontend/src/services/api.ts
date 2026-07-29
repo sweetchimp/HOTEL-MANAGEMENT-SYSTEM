@@ -86,7 +86,7 @@ class ApiClient {
     localStorage.removeItem('ahms_token')
     localStorage.removeItem('ahms_refresh_token')
     localStorage.removeItem('ahms_user')
-    window.location.href = '/login'
+    window.location.href = '/'
   }
 
   async get<T>(endpoint: string): Promise<ApiResponse<T>> {

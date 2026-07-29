@@ -65,6 +65,17 @@ const ROUTES = {
   'GET /api/checkin/list': './netlify/functions/checkin/list.ts',
   'POST /api/checkout/process': './netlify/functions/checkout/process.ts',
   'GET /api/checkout/list': './netlify/functions/checkout/list.ts',
+  'GET /api/billing/invoices': './netlify/functions/billing/list.ts',
+  'POST /api/billing/invoices': './netlify/functions/billing/create.ts',
+  'GET /api/billing/invoices/:id': './netlify/functions/billing/detail.ts',
+  'GET /api/billing/invoices/:id/balance': './netlify/functions/billing/balance.ts',
+  'POST /api/billing/invoices/:id/items': './netlify/functions/billing/add-item.ts',
+  'POST /api/billing/invoices/:id/payments': './netlify/functions/billing/record-payment.ts',
+  'GET /api/reports/summary': './netlify/functions/reports/summary.ts',
+  'GET /api/reports/occupancy': './netlify/functions/reports/occupancy.ts',
+  'GET /api/reports/revenue': './netlify/functions/reports/revenue.ts',
+  'GET /api/reports/room-types': './netlify/functions/reports/room-types.ts',
+  'GET /api/reports/popular-guests': './netlify/functions/reports/popular-guests.ts',
 }
 
 function matchRoute(method, pathname) {

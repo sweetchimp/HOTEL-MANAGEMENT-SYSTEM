@@ -4,7 +4,8 @@
 // Activated when DB_MODE=mock
 // ============================================================
 
-import { hashSync } from 'bcryptjs'
+import bcrypt from 'bcryptjs'
+const { hashSync } = bcrypt
 
 // --- Mock Data ---
 const now = new Date().toISOString()
@@ -96,8 +97,8 @@ class MockConnection {
   async execute(sql: string, binds: Record<string, unknown> = {}) {
     const upper = sql.toUpperCase().trim()
 
-    // SELECT SINGLE ROW
-    if (upper.startsWith('SELECT') && upper.includes('INTO') || (upper.startsWith('SELECT') && !upper.includes('FROM') === false && upper.includes('WHERE'))) {
+    // SELECT
+    if (upper.startsWith('SELECT')) {
       return this._executeSelect(sql, binds)
     }
     // INSERT
@@ -140,10 +141,18 @@ class MockConnection {
         rows = [[filtered.length]]
       } else if (upper.includes('FROM GUESTS')) {
         rows = [[GUESTS.length]]
+      } else if (upper.includes('FROM INVOICES')) {
+        let filtered = [...INVOICES]
+        if (binds.status) filtered = filtered.filter(i => i.STATUS === binds.status)
+        rows = [[filtered.length]]
+      } else if (upper.includes('FROM BOOKINGS')) {
+        let filtered = [...BOOKINGS]
+        if (binds.status) filtered = filtered.filter(b => b.STATUS === binds.status)
+        rows = [[filtered.length]]
       } else {
         rows = [[0]]
       }
-    } else if (upper.includes('NVL(SUM(')) {
+    } else if (upper.includes('NVL(SUM(') || upper.includes('NVL(AVG(')) {
       if (upper.includes('INVOICE_ITEMS')) {
         const boundInvSum = binds.invoice_id || binds.p_invoice_id
         const total = INVOICE_ITEMS.filter(i => Number(boundInvSum) ? i.INVOICE_ID === Number(boundInvSum) : true).reduce((sum, i) => sum + i.TOTAL, 0)
@@ -155,6 +164,15 @@ class MockConnection {
       } else if (upper.includes('INVOICES')) {
         const total = INVOICES.reduce((sum, i) => sum + i.TOTAL_AMOUNT, 0)
         rows = [[total]]
+      } else {
+        rows = [[0]]
+      }
+    } else if (upper.includes('NVL(AVG(')) {
+      if (upper.includes('BOOKINGS')) {
+        let filtered = [...BOOKINGS]
+        if (binds.status) filtered = filtered.filter(b => b.STATUS === binds.status)
+        const avg = filtered.length > 0 ? filtered.reduce((sum, b) => sum + b.RATE_PER_NIGHT, 0) / filtered.length : 0
+        rows = [[avg]]
       } else {
         rows = [[0]]
       }
@@ -414,6 +432,14 @@ class MockConnection {
         if (inv) {
           if (binds.total_amount !== undefined) inv.TOTAL_AMOUNT = Number(binds.total_amount)
           if (binds.status) inv.STATUS = String(binds.status)
+          inv.UPDATED_AT = now
+        }
+      }
+      const statusMatch = upper.match(/SET\s+STATUS\s*=\s*'(\w+)'/)
+      if (statusMatch && !binds.status && boundInvId) {
+        const inv = INVOICES.find(i => i.INVOICE_ID === Number(boundInvId))
+        if (inv) {
+          inv.STATUS = statusMatch[1]
           inv.UPDATED_AT = now
         }
       }
