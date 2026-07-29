@@ -40,6 +40,10 @@ export function requireAuth(event: Request): AuthUser {
   return user
 }
 
+export function requireAdmin(event: Request): AuthUser {
+  return requireRole(event, ['ADMIN'])
+}
+
 export function requireRole(event: Request, roles: string[]): AuthUser {
   const user = requireAuth(event)
   if (!roles.includes(user.role)) {

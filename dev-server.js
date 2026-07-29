@@ -96,6 +96,13 @@ const ROUTES = {
   // Phase 8 — Payroll
   'GET /api/payroll/:staff_id': './netlify/functions/payroll/list.ts',
   'POST /api/payroll': './netlify/functions/payroll/create.ts',
+
+  // Phase 9 — Settings & Admin
+  'GET /api/settings': './netlify/functions/settings/get.ts',
+  'PUT /api/settings': './netlify/functions/settings/update.ts',
+  'GET /api/audit': './netlify/functions/audit/list.ts',
+  'GET /api/users': './netlify/functions/users/list.ts',
+  'PUT /api/users/:id/role': './netlify/functions/users/update-role.ts',
 }
 
 function matchRoute(method, pathname) {

@@ -332,3 +332,35 @@ export interface PopularGuest {
   total_stays: number
   total_spend: number
 }
+
+// --- Settings & Admin ---
+export interface Setting {
+  setting_key: string
+  setting_value: string
+  description: string
+  updated_at: string
+  updated_by: number
+}
+
+export interface AuditEntry {
+  id: number
+  action: string
+  entity_type: string
+  entity_id: number | null
+  performed_by: number
+  performed_at: string
+  details: string
+  performed_by_name: string
+}
+
+export interface AdminUser {
+  user_id: number
+  username: string
+  full_name: string
+  email: string
+  role_id: number
+  role_name: string
+  is_active: number
+  last_login: string | null
+  created_at: string
+}

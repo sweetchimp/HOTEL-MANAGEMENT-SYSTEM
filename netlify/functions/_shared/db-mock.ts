@@ -106,6 +106,32 @@ let STAFF = [
   { ID: 5, FULL_NAME: 'Eve Concierge', EMAIL: 'eve@altonshotel.com', PHONE: '+1-555-0205', DEPARTMENT: 'Concierge', POSITION: 'Concierge', SALARY: 35000, HIRE_DATE: '2025-05-05', IS_ACTIVE: 1 },
 ]
 
+let SETTINGS = [
+  { SETTING_KEY: 'hotel_name', SETTING_VALUE: 'Altons Hotel', DESCRIPTION: 'Hotel display name', UPDATED_AT: now, UPDATED_BY: 1 },
+  { SETTING_KEY: 'hotel_address', SETTING_VALUE: '123 Main Street, City', DESCRIPTION: 'Hotel address', UPDATED_AT: now, UPDATED_BY: 1 },
+  { SETTING_KEY: 'hotel_phone', SETTING_VALUE: '+1-555-0100', DESCRIPTION: 'Main phone number', UPDATED_AT: now, UPDATED_BY: 1 },
+  { SETTING_KEY: 'hotel_email', SETTING_VALUE: 'info@altonshotel.com', DESCRIPTION: 'Contact email', UPDATED_AT: now, UPDATED_BY: 1 },
+  { SETTING_KEY: 'tax_rate', SETTING_VALUE: '10', DESCRIPTION: 'Default tax rate (%)', UPDATED_AT: now, UPDATED_BY: 1 },
+  { SETTING_KEY: 'currency', SETTING_VALUE: 'USD', DESCRIPTION: 'Default currency', UPDATED_AT: now, UPDATED_BY: 1 },
+  { SETTING_KEY: 'check_in_time', SETTING_VALUE: '14:00', DESCRIPTION: 'Standard check-in time', UPDATED_AT: now, UPDATED_BY: 1 },
+  { SETTING_KEY: 'check_out_time', SETTING_VALUE: '12:00', DESCRIPTION: 'Standard check-out time', UPDATED_AT: now, UPDATED_BY: 1 },
+  { SETTING_KEY: 'max_guests_per_booking', SETTING_VALUE: '4', DESCRIPTION: 'Maximum guests allowed per booking', UPDATED_AT: now, UPDATED_BY: 1 },
+  { SETTING_KEY: 'cancellation_policy', SETTING_VALUE: 'Free cancellation 48 hours before check-in', DESCRIPTION: 'Cancellation policy text', UPDATED_AT: now, UPDATED_BY: 1 },
+]
+
+let AUDIT_LOG = [
+  { ID: 1, ACTION: 'LOGIN', ENTITY_TYPE: 'USER', ENTITY_ID: 1, PERFORMED_BY: 1, PERFORMED_AT: '2026-07-29T08:00:00', DETAILS: 'User admin logged in' },
+  { ID: 2, ACTION: 'CREATE', ENTITY_TYPE: 'ROOM', ENTITY_ID: 15, PERFORMED_BY: 1, PERFORMED_AT: '2026-07-29T08:30:00', DETAILS: 'Created room 701' },
+  { ID: 3, ACTION: 'UPDATE', ENTITY_TYPE: 'RESERVATION', ENTITY_ID: 3, PERFORMED_BY: 2, PERFORMED_AT: '2026-07-29T09:15:00', DETAILS: 'Updated reservation #3 - changed dates' },
+  { ID: 4, ACTION: 'CHECKIN', ENTITY_TYPE: 'BOOKING', ENTITY_ID: 2, PERFORMED_BY: 2, PERFORMED_AT: '2026-07-29T10:00:00', DETAILS: 'Checked in booking #2' },
+  { ID: 5, ACTION: 'PAYMENT', ENTITY_TYPE: 'INVOICE', ENTITY_ID: 1, PERFORMED_BY: 2, PERFORMED_AT: '2026-07-29T10:30:00', DETAILS: 'Recorded payment of $290 on invoice #1' },
+  { ID: 6, ACTION: 'CREATE', ENTITY_TYPE: 'GUEST', ENTITY_ID: 5, PERFORMED_BY: 2, PERFORMED_AT: '2026-07-28T14:00:00', DETAILS: 'Created guest record for Alex Brown' },
+  { ID: 7, ACTION: 'LOGOUT', ENTITY_TYPE: 'USER', ENTITY_ID: 2, PERFORMED_BY: 2, PERFORMED_AT: '2026-07-28T18:00:00', DETAILS: 'User reception1 logged out' },
+  { ID: 8, ACTION: 'UPDATE', ENTITY_TYPE: 'SETTINGS', ENTITY_ID: null, PERFORMED_BY: 1, PERFORMED_AT: '2026-07-27T12:00:00', DETAILS: 'Updated hotel settings' },
+  { ID: 9, ACTION: 'CREATE', ENTITY_TYPE: 'MAINTENANCE', ENTITY_ID: 3, PERFORMED_BY: 3, PERFORMED_AT: '2026-07-28T14:15:00', DETAILS: 'Reported HVAC issue in room 302' },
+  { ID: 10, ACTION: 'LOGIN', ENTITY_TYPE: 'USER', ENTITY_ID: 3, PERFORMED_BY: 3, PERFORMED_AT: '2026-07-29T07:45:00', DETAILS: 'User manager1 logged in' },
+]
+
 let PAYROLL = [
   { ID: 1, STAFF_ID: 1, MONTH: '2026-05', SALARY_PAID: 3750, PAYMENT_DATE: '2026-05-31' },
   { ID: 2, STAFF_ID: 1, MONTH: '2026-06', SALARY_PAID: 3750, PAYMENT_DATE: '2026-06-30' },
@@ -377,6 +403,13 @@ class MockConnection {
       const boundPayId = binds.id || binds.p_id
       if (boundPayId) filtered = filtered.filter(p => p.ID === Number(boundPayId))
       rows = filtered.map(p => [p.ID, p.STAFF_ID, p.MONTH, p.SALARY_PAID, p.PAYMENT_DATE])
+    } else if (upper.includes('FROM SYSTEM_SETTINGS')) {
+      rows = SETTINGS.map(s => [s.SETTING_KEY, s.SETTING_VALUE, s.DESCRIPTION, s.UPDATED_AT, s.UPDATED_BY])
+    } else if (upper.includes('FROM AUDIT_LOG')) {
+      let filtered = [...AUDIT_LOG]
+      if (binds.action) filtered = filtered.filter(a => a.ACTION === binds.action)
+      if (binds.entity_type) filtered = filtered.filter(a => a.ENTITY_TYPE === binds.entity_type)
+      rows = filtered.map(a => [a.ID, a.ACTION, a.ENTITY_TYPE, a.ENTITY_ID, a.PERFORMED_BY, a.PERFORMED_AT, a.DETAILS])
     }
 
     return { rows, metaData: rows.length > 0 ? rows[0].map(() => ({})) : [] }
@@ -441,7 +474,8 @@ class MockConnection {
       return { rowsAffected: 1, lastRowid: id }
     }
     if (upper.includes('INTO AUDIT_LOG')) {
-      return { rowsAffected: 1 }
+      AUDIT_LOG.push({ ID: id, ACTION: String(binds.action || ''), ENTITY_TYPE: String(binds.entity_type || ''), ENTITY_ID: binds.entity_id ? Number(binds.entity_id) : null, PERFORMED_BY: Number(binds.performed_by || 1), PERFORMED_AT: now, DETAILS: String(binds.details || '') })
+      return { rowsAffected: 1, lastRowid: id }
     }
 
     return { rowsAffected: 1, lastRowid: id }
@@ -545,6 +579,25 @@ class MockConnection {
           if (binds.salary !== undefined) s.SALARY = Number(binds.salary)
           if (binds.is_active !== undefined) s.IS_ACTIVE = Number(binds.is_active)
         }
+      }
+      return { rowsAffected: 1 }
+    }
+    if (upper.includes('UPDATE SYSTEM_SETTINGS')) {
+      if (binds.setting_key) {
+        const s = SETTINGS.find(s => s.SETTING_KEY === String(binds.setting_key))
+        if (s) {
+          if (binds.setting_value !== undefined) s.SETTING_VALUE = String(binds.setting_value)
+          s.UPDATED_AT = now
+          if (binds.updated_by) s.UPDATED_BY = Number(binds.updated_by)
+        }
+      }
+      return { rowsAffected: 1 }
+    }
+    if (upper.includes('UPDATE USERS') && binds.p_user_id) {
+      const boundUserId = Number(binds.p_user_id)
+      if (boundUserId) {
+        const u = USERS.find(u => u.USER_ID === boundUserId)
+        if (u && binds.role_id !== undefined) u.ROLE_ID = Number(binds.role_id)
       }
       return { rowsAffected: 1 }
     }

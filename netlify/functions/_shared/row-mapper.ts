@@ -58,6 +58,14 @@ const COLUMN_MAPS: Record<string, ColumnMap> = {
   PAYROLL: {
     ID: 0, STAFF_ID: 1, MONTH: 2, SALARY_PAID: 3, PAYMENT_DATE: 4,
   },
+  SYSTEM_SETTINGS: {
+    SETTING_KEY: 0, SETTING_VALUE: 1, DESCRIPTION: 2,
+    UPDATED_AT: 3, UPDATED_BY: 4,
+  },
+  AUDIT_LOG: {
+    ID: 0, ACTION: 1, ENTITY_TYPE: 2, ENTITY_ID: 3,
+    PERFORMED_BY: 4, PERFORMED_AT: 5, DETAILS: 6,
+  },
 }
 
 export function mapRow<T>(row: unknown[], tableName: string): T {

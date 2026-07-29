@@ -15,6 +15,11 @@ const navigation = [
   { name: 'Schedule', href: '/dashboard/schedule', icon: '📋', roles: ['ADMIN', 'MANAGER'] },
   { name: 'Billing', href: '/dashboard/billing', icon: '💰', roles: ['ADMIN', 'RECEPTIONIST', 'MANAGER'] },
   { name: 'Reports', href: '/dashboard/reports', icon: '📈', roles: ['ADMIN', 'MANAGER'] },
+
+  // Phase 9 — Settings & Admin
+  { name: 'Settings', href: '/dashboard/settings', icon: '⚙️', roles: ['ADMIN'] },
+  { name: 'Audit Log', href: '/dashboard/audit', icon: '📋', roles: ['ADMIN'] },
+  { name: 'Users', href: '/dashboard/users', icon: '👥', roles: ['ADMIN'] },
 ]
 
 function filterByRole(items: typeof navigation, role: UserRole) {

@@ -15,6 +15,9 @@ import MaintenancePage from './pages/MaintenancePage'
 import HousekeepingPage from './pages/HousekeepingPage'
 import StaffPage from './pages/StaffPage'
 import SchedulePage from './pages/SchedulePage'
+import SettingsPage from './pages/SettingsPage'
+import AuditLogPage from './pages/AuditLogPage'
+import AdminUsersPage from './pages/AdminUsersPage'
 
 function App() {
   return (
@@ -41,6 +44,9 @@ function App() {
           <Route path="housekeeping" element={<HousekeepingPage />} />
           <Route path="staff" element={<StaffPage />} />
           <Route path="schedule" element={<SchedulePage />} />
+          <Route path="settings" element={<SettingsPage />} />
+          <Route path="audit" element={<AuditLogPage />} />
+          <Route path="users" element={<AdminUsersPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

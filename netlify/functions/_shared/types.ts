@@ -350,3 +350,39 @@ export interface CreatePayrollRequest {
   salary_paid: number
   payment_date: string
 }
+
+// --- Settings & Admin ---
+export interface DbSystemSetting {
+  SETTING_KEY: string
+  SETTING_VALUE: string
+  DESCRIPTION: string
+  UPDATED_AT: string
+  UPDATED_BY: number
+}
+
+export interface DbAuditEntry {
+  ID: number
+  ACTION: string
+  ENTITY_TYPE: string
+  ENTITY_ID: number | null
+  PERFORMED_BY: number
+  PERFORMED_AT: string
+  DETAILS: string
+}
+
+export interface UpdateSettingRequest {
+  settings: Record<string, string>
+}
+
+export interface UpdateUserRoleRequest {
+  role_id: number
+}
+
+export interface AuditListParams {
+  action?: string
+  entity_type?: string
+  from?: string
+  to?: string
+  page?: number
+  pageSize?: number
+}
