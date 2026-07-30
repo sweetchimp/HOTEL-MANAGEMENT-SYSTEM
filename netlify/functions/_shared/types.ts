@@ -365,7 +365,8 @@ export interface DbAuditEntry {
   ACTION: string
   ENTITY_TYPE: string
   ENTITY_ID: number | null
-  PERFORMED_BY: number
+  PERFORMED_BY: string
+  PERFORMED_BY_ID: number
   PERFORMED_AT: string
   DETAILS: string
 }

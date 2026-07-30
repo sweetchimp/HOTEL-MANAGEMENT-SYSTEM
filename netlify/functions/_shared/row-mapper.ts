@@ -64,7 +64,7 @@ const COLUMN_MAPS: Record<string, ColumnMap> = {
   },
   AUDIT_LOG: {
     ID: 0, ACTION: 1, ENTITY_TYPE: 2, ENTITY_ID: 3,
-    PERFORMED_BY: 4, PERFORMED_AT: 5, DETAILS: 6,
+    PERFORMED_BY: 4, PERFORMED_BY_ID: 5, PERFORMED_AT: 6, DETAILS: 7,
   },
 }
 

@@ -14,7 +14,7 @@ export default async (req: Request) => {
   try {
     requireRole(req, ['ADMIN'])
     const url = new URL(req.url)
-    const roomId = Number(url.pathname.split('/').split('/').filter(Boolean).pop())
+    const roomId = Number(url.pathname.split('/').filter(Boolean).pop())
     const body: UpdateRoomStatusRequest = await req.json()
 
     const validStatuses = ['AVAILABLE', 'OCCUPIED', 'MAINTENANCE', 'RESERVED']

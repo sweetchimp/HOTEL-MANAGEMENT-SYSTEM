@@ -120,16 +120,16 @@ let SETTINGS = [
 ]
 
 let AUDIT_LOG = [
-  { ID: 1, ACTION: 'LOGIN', ENTITY_TYPE: 'USER', ENTITY_ID: 1, PERFORMED_BY: 1, PERFORMED_AT: '2026-07-29T08:00:00', DETAILS: 'User admin logged in' },
-  { ID: 2, ACTION: 'CREATE', ENTITY_TYPE: 'ROOM', ENTITY_ID: 15, PERFORMED_BY: 1, PERFORMED_AT: '2026-07-29T08:30:00', DETAILS: 'Created room 701' },
-  { ID: 3, ACTION: 'UPDATE', ENTITY_TYPE: 'RESERVATION', ENTITY_ID: 3, PERFORMED_BY: 2, PERFORMED_AT: '2026-07-29T09:15:00', DETAILS: 'Updated reservation #3 - changed dates' },
-  { ID: 4, ACTION: 'CHECKIN', ENTITY_TYPE: 'BOOKING', ENTITY_ID: 2, PERFORMED_BY: 2, PERFORMED_AT: '2026-07-29T10:00:00', DETAILS: 'Checked in booking #2' },
-  { ID: 5, ACTION: 'PAYMENT', ENTITY_TYPE: 'INVOICE', ENTITY_ID: 1, PERFORMED_BY: 2, PERFORMED_AT: '2026-07-29T10:30:00', DETAILS: 'Recorded payment of $290 on invoice #1' },
-  { ID: 6, ACTION: 'CREATE', ENTITY_TYPE: 'GUEST', ENTITY_ID: 5, PERFORMED_BY: 2, PERFORMED_AT: '2026-07-28T14:00:00', DETAILS: 'Created guest record for Alex Brown' },
-  { ID: 7, ACTION: 'LOGOUT', ENTITY_TYPE: 'USER', ENTITY_ID: 2, PERFORMED_BY: 2, PERFORMED_AT: '2026-07-28T18:00:00', DETAILS: 'User reception1 logged out' },
-  { ID: 8, ACTION: 'UPDATE', ENTITY_TYPE: 'SETTINGS', ENTITY_ID: null, PERFORMED_BY: 1, PERFORMED_AT: '2026-07-27T12:00:00', DETAILS: 'Updated hotel settings' },
-  { ID: 9, ACTION: 'CREATE', ENTITY_TYPE: 'MAINTENANCE', ENTITY_ID: 3, PERFORMED_BY: 3, PERFORMED_AT: '2026-07-28T14:15:00', DETAILS: 'Reported HVAC issue in room 302' },
-  { ID: 10, ACTION: 'LOGIN', ENTITY_TYPE: 'USER', ENTITY_ID: 3, PERFORMED_BY: 3, PERFORMED_AT: '2026-07-29T07:45:00', DETAILS: 'User manager1 logged in' },
+  { ID: 1, ACTION: 'LOGIN', ENTITY_TYPE: 'USER', ENTITY_ID: 1, PERFORMED_BY: 'admin', PERFORMED_BY_ID: 1, PERFORMED_AT: '2026-07-29T08:00:00', DETAILS: 'User admin logged in' },
+  { ID: 2, ACTION: 'CREATE', ENTITY_TYPE: 'ROOM', ENTITY_ID: 15, PERFORMED_BY: 'admin', PERFORMED_BY_ID: 1, PERFORMED_AT: '2026-07-29T08:30:00', DETAILS: 'Created room 701' },
+  { ID: 3, ACTION: 'UPDATE', ENTITY_TYPE: 'RESERVATION', ENTITY_ID: 3, PERFORMED_BY: 'reception1', PERFORMED_BY_ID: 2, PERFORMED_AT: '2026-07-29T09:15:00', DETAILS: 'Updated reservation #3 - changed dates' },
+  { ID: 4, ACTION: 'CHECKIN', ENTITY_TYPE: 'BOOKING', ENTITY_ID: 2, PERFORMED_BY: 'reception1', PERFORMED_BY_ID: 2, PERFORMED_AT: '2026-07-29T10:00:00', DETAILS: 'Checked in booking #2' },
+  { ID: 5, ACTION: 'PAYMENT', ENTITY_TYPE: 'INVOICE', ENTITY_ID: 1, PERFORMED_BY: 'reception1', PERFORMED_BY_ID: 2, PERFORMED_AT: '2026-07-29T10:30:00', DETAILS: 'Recorded payment of $290 on invoice #1' },
+  { ID: 6, ACTION: 'CREATE', ENTITY_TYPE: 'GUEST', ENTITY_ID: 5, PERFORMED_BY: 'reception1', PERFORMED_BY_ID: 2, PERFORMED_AT: '2026-07-28T14:00:00', DETAILS: 'Created guest record for Alex Brown' },
+  { ID: 7, ACTION: 'LOGOUT', ENTITY_TYPE: 'USER', ENTITY_ID: 2, PERFORMED_BY: 'reception1', PERFORMED_BY_ID: 2, PERFORMED_AT: '2026-07-28T18:00:00', DETAILS: 'User reception1 logged out' },
+  { ID: 8, ACTION: 'UPDATE', ENTITY_TYPE: 'SETTINGS', ENTITY_ID: null, PERFORMED_BY: 'admin', PERFORMED_BY_ID: 1, PERFORMED_AT: '2026-07-27T12:00:00', DETAILS: 'Updated hotel settings' },
+  { ID: 9, ACTION: 'CREATE', ENTITY_TYPE: 'MAINTENANCE', ENTITY_ID: 3, PERFORMED_BY: 'manager1', PERFORMED_BY_ID: 3, PERFORMED_AT: '2026-07-28T14:15:00', DETAILS: 'Reported HVAC issue in room 302' },
+  { ID: 10, ACTION: 'LOGIN', ENTITY_TYPE: 'USER', ENTITY_ID: 3, PERFORMED_BY: 'manager1', PERFORMED_BY_ID: 3, PERFORMED_AT: '2026-07-29T07:45:00', DETAILS: 'User manager1 logged in' },
 ]
 
 let PAYROLL = [
@@ -175,6 +175,60 @@ class MockConnection {
     }
     // Default
     return { rows: [], rowsAffected: 0 }
+  }
+
+  private _columnMap: Record<string, string[]> = {
+    ROOMS: ['ROOM_ID', 'ROOM_NUMBER', 'TYPE_ID', 'FLOOR', 'STATUS', 'DESCRIPTION'],
+    GUESTS: ['GUEST_ID', 'FIRST_NAME', 'LAST_NAME', 'EMAIL', 'PHONE', 'ID_TYPE', 'ID_NUMBER', 'ADDRESS', 'NATIONALITY', 'CREATED_AT', 'UPDATED_AT'],
+    RESERVATIONS: ['RESERVATION_ID', 'GUEST_ID', 'ROOM_TYPE_ID', 'CHECK_IN_DATE', 'CHECK_OUT_DATE', 'STATUS', 'SPECIAL_REQUESTS', 'CREATED_BY', 'CREATED_AT', 'UPDATED_AT'],
+    BOOKINGS: ['BOOKING_ID', 'RESERVATION_ID', 'ROOM_ID', 'CHECK_IN_DATE', 'CHECK_OUT_DATE', 'RATE_PER_NIGHT', 'STATUS', 'CREATED_AT'],
+    CHECKINS: ['CHECKIN_ID', 'BOOKING_ID', 'ACTUAL_CHECK_IN', 'CHECKED_IN_BY', 'NOTES'],
+    CHECKOUTS: ['CHECKOUT_ID', 'CHECKIN_ID', 'ACTUAL_CHECK_OUT', 'CHECKED_OUT_BY', 'NOTES'],
+    INVOICES: ['INVOICE_ID', 'BOOKING_ID', 'GUEST_ID', 'TOTAL_AMOUNT', 'STATUS', 'CREATED_AT', 'UPDATED_AT'],
+    INVOICE_ITEMS: ['ITEM_ID', 'INVOICE_ID', 'DESCRIPTION', 'QUANTITY', 'UNIT_PRICE', 'TOTAL'],
+    PAYMENTS: ['PAYMENT_ID', 'INVOICE_ID', 'AMOUNT', 'PAYMENT_METHOD', 'PAYMENT_DATE', 'REFERENCE_NUMBER', 'RECEIVED_BY'],
+    USERS: ['USER_ID', 'USERNAME', 'PASSWORD_HASH', 'FULL_NAME', 'EMAIL', 'ROLE_ID', 'IS_ACTIVE', 'FAILED_LOGIN_ATTEMPTS', 'LAST_LOGIN', 'CREATED_AT', 'UPDATED_AT'],
+    ROLES: ['ROLE_ID', 'ROLE_NAME', 'DESCRIPTION'],
+    ROOM_TYPES: ['TYPE_ID', 'TYPE_NAME', 'DESCRIPTION', 'BASE_PRICE', 'MAX_OCCUPANCY'],
+    MAINTENANCE: ['ID', 'ROOM_ID', 'ISSUE_TYPE', 'DESCRIPTION', 'STATUS', 'CREATED_DATE', 'ASSIGNED_TO', 'RESOLVED_DATE', 'NOTES'],
+    STAFF: ['ID', 'FULL_NAME', 'EMAIL', 'PHONE', 'DEPARTMENT', 'POSITION', 'SALARY', 'HIRE_DATE', 'IS_ACTIVE'],
+    PAYROLL: ['ID', 'STAFF_ID', 'MONTH', 'SALARY_PAID', 'PAYMENT_DATE'],
+    SYSTEM_SETTINGS: ['SETTING_KEY', 'SETTING_VALUE', 'DESCRIPTION', 'UPDATED_AT', 'UPDATED_BY'],
+    AUDIT_LOG: ['ID', 'ACTION', 'ENTITY_TYPE', 'ENTITY_ID', 'PERFORMED_BY', 'PERFORMED_BY_ID', 'PERFORMED_AT', 'DETAILS'],
+  }
+
+  private _projectColumns(sql: string, rows: unknown[][]): unknown[][] {
+    if (rows.length === 0) return rows
+    const upper = sql.toUpperCase()
+    const match = upper.match(/^SELECT\s+(.+?)\s+FROM\s+/)
+    if (!match) return rows
+    let selectCols = match[1].trim()
+    // Handle COUNT, NVL, etc. - skip projection for aggregations
+    if (selectCols.includes('COUNT(') || selectCols.includes('NVL(') || selectCols.includes('AVG(')) return rows
+    // Skip projection for JOIN queries or SELECT *
+    if (selectCols === '*') return rows
+    if (upper.includes(' JOIN ')) return rows
+
+    // Determine which table to find column names for
+    const fromMatch = upper.match(/FROM\s+(\w+)/)
+    if (!fromMatch) return rows
+    const tableName = fromMatch[1]
+    const tableCols = this._columnMap[tableName]
+    if (!tableCols) return rows
+
+    // Parse selected column names (strip table prefixes like "r." or "b.")
+    const colNames = selectCols.split(',').map(c => {
+      let col = c.trim().replace(/^(\w+\.)?/, '') // remove table prefix
+      // Handle aliases: "STATUS s" -> "STATUS"
+      col = col.split(/\s+/)[0]
+      return col
+    })
+
+    // Map to indices
+    const indices = colNames.map(name => tableCols.indexOf(name)).filter(i => i >= 0)
+    if (indices.length === 0 || indices.length === tableCols.length) return rows
+
+    return rows.map(row => indices.map(i => row[i]))
   }
 
   private _executeSelect(sql: string, binds: Record<string, unknown>) {
@@ -300,13 +354,15 @@ class MockConnection {
       const boundGuestId = binds.guest_id || binds.p_guest_id
       if (boundGuestId) filtered = filtered.filter(g => g.GUEST_ID === Number(boundGuestId))
       if (binds.id_number) filtered = filtered.filter(g => g.ID_NUMBER === binds.id_number)
-      if (binds.search) {
-        const q = String(binds.search).toUpperCase()
+      const searchVal = binds.search || binds.q
+      if (searchVal) {
+        const q = String(searchVal).replace(/%/g, '').toUpperCase()
         filtered = filtered.filter(g =>
           g.FIRST_NAME.toUpperCase().includes(q) ||
           g.LAST_NAME.toUpperCase().includes(q) ||
           g.EMAIL.toUpperCase().includes(q) ||
-          g.PHONE.includes(q)
+          g.PHONE.includes(q) ||
+          g.ID_NUMBER.toUpperCase().includes(q)
         )
       }
       rows = filtered.map(g => [g.GUEST_ID, g.FIRST_NAME, g.LAST_NAME, g.EMAIL, g.PHONE, g.ID_TYPE, g.ID_NUMBER, g.ADDRESS, g.NATIONALITY, g.CREATED_AT, g.UPDATED_AT])
@@ -409,10 +465,17 @@ class MockConnection {
       let filtered = [...AUDIT_LOG]
       if (binds.action) filtered = filtered.filter(a => a.ACTION === binds.action)
       if (binds.entity_type) filtered = filtered.filter(a => a.ENTITY_TYPE === binds.entity_type)
-      rows = filtered.map(a => [a.ID, a.ACTION, a.ENTITY_TYPE, a.ENTITY_ID, a.PERFORMED_BY, a.PERFORMED_AT, a.DETAILS])
+      if (upper.includes('JOIN USERS')) {
+        rows = filtered.map(a => {
+          const user = USERS.find(u => u.USER_ID === a.PERFORMED_BY_ID)
+          return [a.ID, a.ACTION, a.ENTITY_TYPE, a.ENTITY_ID, a.PERFORMED_BY_ID, a.PERFORMED_AT, a.DETAILS, user ? user.FULL_NAME : null]
+        })
+      } else {
+        rows = filtered.map(a => [a.ID, a.ACTION, a.ENTITY_TYPE, a.ENTITY_ID, a.PERFORMED_BY_ID, a.PERFORMED_AT, a.DETAILS])
+      }
     }
 
-    return { rows, metaData: rows.length > 0 ? rows[0].map(() => ({})) : [] }
+    return { rows: this._projectColumns(sql, rows), metaData: rows.length > 0 ? rows[0].map(() => ({})) : [] }
   }
 
   private _executeInsert(sql: string, binds: Record<string, unknown>) {
@@ -421,64 +484,66 @@ class MockConnection {
 
     if (upper.includes('INTO USERS')) {
       USERS.push({ USER_ID: id, USERNAME: String(binds.username || ''), PASSWORD_HASH: String(binds.password_hash || ''), FULL_NAME: String(binds.full_name || ''), EMAIL: String(binds.email || ''), ROLE_ID: Number(binds.role_id || 2), IS_ACTIVE: 1, FAILED_LOGIN_ATTEMPTS: 0, LAST_LOGIN: null, CREATED_AT: now, UPDATED_AT: now })
-      return { rowsAffected: 1, lastRowid: id }
+      return { rows: [[id]], rowsAffected: 1 }
     }
     if (upper.includes('INTO ROOMS')) {
       ROOMS.push({ ROOM_ID: id, ROOM_NUMBER: String(binds.room_number || ''), TYPE_ID: Number(binds.type_id || 1), FLOOR: Number(binds.floor || 1), STATUS: String(binds.status || 'AVAILABLE'), DESCRIPTION: String(binds.description || '') })
-      return { rowsAffected: 1, lastRowid: id }
+      return { rows: [[id]], rowsAffected: 1 }
     }
     if (upper.includes('INTO GUESTS')) {
-      GUESTS.push({ GUEST_ID: id, FIRST_NAME: String(binds.first_name || ''), LAST_NAME: String(binds.last_name || ''), EMAIL: String(binds.email || ''), PHONE: String(binds.phone || ''), ID_TYPE: String(binds.id_type || ''), ID_NUMBER: String(binds.id_number || ''), ADDRESS: String(binds.address || ''), NATIONALITY: String(binds.nationality || ''), CREATED_AT: now, UPDATED_AT: now })
-      return { rowsAffected: 1, lastRowid: id }
+      GUESTS.push({ GUEST_ID: id, FIRST_NAME: String(binds.fn || binds.first_name || ''), LAST_NAME: String(binds.ln || binds.last_name || ''), EMAIL: String(binds.email || ''), PHONE: String(binds.phone || ''), ID_TYPE: String(binds.id_type || ''), ID_NUMBER: String(binds.id_num || binds.id_number || ''), ADDRESS: String(binds.addr || binds.address || ''), NATIONALITY: String(binds.nat || binds.nationality || ''), CREATED_AT: now, UPDATED_AT: now })
+      return { rows: [[id]], rowsAffected: 1 }
     }
     if (upper.includes('INTO RESERVATIONS')) {
-      RESERVATIONS.push({ RESERVATION_ID: id, GUEST_ID: Number(binds.guest_id), ROOM_TYPE_ID: Number(binds.room_type_id), CHECK_IN_DATE: String(binds.check_in_date || ''), CHECK_OUT_DATE: String(binds.check_out_date || ''), STATUS: String(binds.status || 'PENDING'), SPECIAL_REQUESTS: String(binds.special_requests || ''), CREATED_BY: Number(binds.created_by), CREATED_AT: now, UPDATED_AT: now })
-      return { rowsAffected: 1, lastRowid: id }
+      RESERVATIONS.push({ RESERVATION_ID: id, GUEST_ID: Number(binds.guest_id || binds.p_guest_id || 0), ROOM_TYPE_ID: Number(binds.room_type_id || binds.type_id || 0), CHECK_IN_DATE: String(binds.check_in_date || binds.check_in || ''), CHECK_OUT_DATE: String(binds.check_out_date || binds.check_out || ''), STATUS: String(binds.status || 'PENDING'), SPECIAL_REQUESTS: String(binds.special_requests || binds.requests || ''), CREATED_BY: Number(binds.created_by || 1), CREATED_AT: now, UPDATED_AT: now })
+      return { rows: [[id]], rowsAffected: 1 }
     }
     if (upper.includes('INTO BOOKINGS')) {
       BOOKINGS.push({ BOOKING_ID: id, RESERVATION_ID: Number(binds.reservation_id), ROOM_ID: Number(binds.room_id), CHECK_IN_DATE: String(binds.check_in_date || ''), CHECK_OUT_DATE: String(binds.check_out_date || ''), RATE_PER_NIGHT: Number(binds.rate_per_night || 0), STATUS: String(binds.status || 'ACTIVE'), CREATED_AT: now })
-      return { rowsAffected: 1, lastRowid: id }
+      return { rows: [[id]], rowsAffected: 1 }
     }
     if (upper.includes('INTO CHECKINS')) {
-      CHECKINS.push({ CHECKIN_ID: id, BOOKING_ID: Number(binds.booking_id), ACTUAL_CHECK_IN: now, CHECKED_IN_BY: Number(binds.checked_in_by), NOTES: String(binds.notes || '') })
-      return { rowsAffected: 1, lastRowid: id }
+      CHECKINS.push({ CHECKIN_ID: id, BOOKING_ID: Number(binds.booking_id || 0), ACTUAL_CHECK_IN: now, CHECKED_IN_BY: Number(binds.checked_in_by || 1), NOTES: String(binds.notes || '') })
+      return { rows: [[id]], rowsAffected: 1 }
     }
     if (upper.includes('INTO CHECKOUTS')) {
       CHECKOUTS.push({ CHECKOUT_ID: id, CHECKIN_ID: Number(binds.checkin_id), ACTUAL_CHECK_OUT: now, CHECKED_OUT_BY: Number(binds.checked_out_by), NOTES: String(binds.notes || '') })
-      return { rowsAffected: 1, lastRowid: id }
+      return { rows: [[id]], rowsAffected: 1 }
     }
     if (upper.includes('INTO INVOICES')) {
       INVOICES.push({ INVOICE_ID: id, BOOKING_ID: Number(binds.booking_id), GUEST_ID: Number(binds.guest_id), TOTAL_AMOUNT: 0, STATUS: 'PENDING', CREATED_AT: now, UPDATED_AT: now })
-      return { rowsAffected: 1, lastRowid: id }
+      return { rows: [[id]], rowsAffected: 1 }
     }
     if (upper.includes('INTO INVOICE_ITEMS')) {
       const qty = Number(binds.quantity || 1)
       const price = Number(binds.unit_price || 0)
       INVOICE_ITEMS.push({ ITEM_ID: id, INVOICE_ID: Number(binds.invoice_id), DESCRIPTION: String(binds.description || ''), QUANTITY: qty, UNIT_PRICE: price, TOTAL: qty * price })
-      return { rowsAffected: 1, lastRowid: id }
+      return { rows: [[id]], rowsAffected: 1 }
     }
     if (upper.includes('INTO PAYMENTS')) {
       PAYMENTS.push({ PAYMENT_ID: id, INVOICE_ID: Number(binds.invoice_id), AMOUNT: Number(binds.amount || 0), PAYMENT_METHOD: String(binds.payment_method || 'CASH'), PAYMENT_DATE: now, REFERENCE_NUMBER: String(binds.reference_number || ''), RECEIVED_BY: Number(binds.received_by) })
-      return { rowsAffected: 1, lastRowid: id }
+      return { rows: [[id]], rowsAffected: 1 }
     }
     if (upper.includes('INTO MAINTENANCE')) {
       MAINTENANCE.push({ ID: id, ROOM_ID: Number(binds.room_id), ISSUE_TYPE: String(binds.issue_type || ''), DESCRIPTION: String(binds.description || ''), STATUS: String(binds.status || 'OPEN'), CREATED_DATE: new Date().toISOString(), ASSIGNED_TO: String(binds.assigned_to || ''), RESOLVED_DATE: null, NOTES: String(binds.notes || '') })
-      return { rowsAffected: 1, lastRowid: id }
+      return { rows: [[id]], rowsAffected: 1 }
     }
     if (upper.includes('INTO STAFF')) {
       STAFF.push({ ID: id, FULL_NAME: String(binds.full_name || ''), EMAIL: String(binds.email || ''), PHONE: String(binds.phone || ''), DEPARTMENT: String(binds.department || ''), POSITION: String(binds.position || ''), SALARY: Number(binds.salary || 0), HIRE_DATE: String(binds.hire_date || ''), IS_ACTIVE: 1 })
-      return { rowsAffected: 1, lastRowid: id }
+      return { rows: [[id]], rowsAffected: 1 }
     }
     if (upper.includes('INTO PAYROLL')) {
       PAYROLL.push({ ID: id, STAFF_ID: Number(binds.staff_id), MONTH: String(binds.month || ''), SALARY_PAID: Number(binds.salary_paid || 0), PAYMENT_DATE: String(binds.payment_date || '') })
-      return { rowsAffected: 1, lastRowid: id }
+      return { rows: [[id]], rowsAffected: 1 }
     }
     if (upper.includes('INTO AUDIT_LOG')) {
-      AUDIT_LOG.push({ ID: id, ACTION: String(binds.action || ''), ENTITY_TYPE: String(binds.entity_type || ''), ENTITY_ID: binds.entity_id ? Number(binds.entity_id) : null, PERFORMED_BY: Number(binds.performed_by || 1), PERFORMED_AT: now, DETAILS: String(binds.details || '') })
-      return { rowsAffected: 1, lastRowid: id }
+      const performedBy = Number(binds.performed_by || 1)
+      const user = USERS.find(u => u.USER_ID === performedBy)
+      AUDIT_LOG.push({ ID: id, ACTION: String(binds.action || ''), ENTITY_TYPE: String(binds.entity_type || ''), ENTITY_ID: binds.entity_id ? Number(binds.entity_id) : null, PERFORMED_BY: user ? user.USERNAME : 'SYSTEM', PERFORMED_BY_ID: performedBy, PERFORMED_AT: now, DETAILS: String(binds.details || '') })
+      return { rows: [[id]], rowsAffected: 1 }
     }
 
-    return { rowsAffected: 1, lastRowid: id }
+    return { rows: [[id]], rowsAffected: 1 }
   }
 
   private _executeUpdate(sql: string, binds: Record<string, unknown>) {
@@ -515,10 +580,24 @@ class MockConnection {
       return { rowsAffected: 1 }
     }
     if (upper.includes('UPDATE RESERVATIONS')) {
-      const boundResId = binds.reservation_id || binds.p_reservation_id
+      let boundResId = binds.reservation_id || binds.p_reservation_id || binds.id
       if (boundResId) {
         const r = RESERVATIONS.find(r => r.RESERVATION_ID === Number(boundResId))
         if (r && binds.status) r.STATUS = String(binds.status)
+      }
+      // Handle text status values like 'CONFIRMED', 'CHECKED_IN', 'COMPLETED'
+      const textStatusMatch = upper.match(/SET\s+STATUS\s*=\s*'(\w+)'/)
+      if (textStatusMatch) {
+        const newStatus = textStatusMatch[1]
+        if (boundResId) {
+          const r = RESERVATIONS.find(r => r.RESERVATION_ID === Number(boundResId))
+          if (r) r.STATUS = newStatus
+        }
+        // Also try WHERE RESERVATION_ID = :id
+        if (!boundResId && binds.id) {
+          const r = RESERVATIONS.find(r => r.RESERVATION_ID === Number(binds.id))
+          if (r) r.STATUS = newStatus
+        }
       }
       // Handle subquery: UPDATE RESERVATIONS WHERE RESERVATION_ID = (SELECT ... FROM BOOKINGS WHERE BOOKING_ID = :booking_id)
       const bookingIdMatch = upper.match(/BOOKING_ID\s*=\s*:BOOKING_ID/)

@@ -6,7 +6,7 @@ import { withConnection } from '../_shared/db'
 import { successResponse, errorResponse, optionsResponse } from '../_shared/response'
 import { AppError, BadRequestError, requireAuth } from '../_shared/middleware'
 import { mapRow } from '../_shared/row-mapper'
-import bcrypt from 'bcryptjs'
+import { verifyPassword, hashPassword } from '../_shared/password'
 import type { DbUser, ChangePasswordRequest } from '../_shared/types'
 
 export default async (req: Request) => {
@@ -37,12 +37,12 @@ export default async (req: Request) => {
 
       const user = mapRow<DbUser>(userResult.rows[0], 'USERS')
 
-      const match = await bcrypt.compare(body.oldPassword, user.PASSWORD_HASH)
+      const match = await verifyPassword(body.oldPassword, user.PASSWORD_HASH)
       if (!match) {
         return { error: 'INVALID_OLD_PASSWORD' }
       }
 
-      const newHash = await bcrypt.hash(body.newPassword, 10)
+      const newHash = await hashPassword(body.newPassword)
       await conn.execute(
         'UPDATE USERS SET PASSWORD_HASH = :hash, FAILED_LOGIN_ATTEMPTS = 0, UPDATED_AT = CURRENT_TIMESTAMP WHERE USER_ID = :user_id',
         { hash: newHash, user_id: authUser.user_id }

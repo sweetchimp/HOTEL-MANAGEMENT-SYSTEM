@@ -28,11 +28,6 @@ export function verifyToken(event: Request): AuthUser | null {
 }
 
 export function requireAuth(event: Request): AuthUser {
-  // Dev mode: skip JWT verification
-  if (process.env.DB_MODE === 'mock') {
-    return { user_id: 1, username: 'admin', role: 'ADMIN', full_name: 'System Administrator' }
-  }
-
   const user = verifyToken(event)
   if (!user) {
     throw new UnauthorizedError('Authentication required')

@@ -42,7 +42,7 @@ export default async (req: Request) => {
       }
 
       const countResult = await conn.execute(
-        `SELECT COUNT(*) FROM AUDIT_LOG a ${where}`,
+        `SELECT COUNT(*) FROM AUDIT_LOG_V a ${where}`,
         binds
       )
       const total = Number(countResult.rows[0]?.[0] || 0)
@@ -52,10 +52,10 @@ export default async (req: Request) => {
       binds.pageSize = params.pageSize
 
       const rowsResult = await conn.execute(
-        `SELECT a.ID, a.ACTION, a.ENTITY_TYPE, a.ENTITY_ID, a.PERFORMED_BY, a.PERFORMED_AT, a.DETAILS,
+        `SELECT a.ID, a.ACTION, a.ENTITY_TYPE, a.ENTITY_ID, a.PERFORMED_BY_ID, a.PERFORMED_AT, a.DETAILS,
                 u.FULL_NAME as PERFORMED_BY_NAME
-         FROM AUDIT_LOG a
-         LEFT JOIN USERS u ON a.PERFORMED_BY = u.USER_ID
+         FROM AUDIT_LOG_V a
+         LEFT JOIN USERS u ON a.PERFORMED_BY_ID = u.USER_ID
          ${where}
          ORDER BY a.PERFORMED_AT DESC
          OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY`,

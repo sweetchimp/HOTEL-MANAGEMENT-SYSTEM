@@ -33,9 +33,9 @@ export default async (req: Request) => {
       }
 
       await conn.execute(
-        `INSERT INTO AUDIT_LOG (ACTION, ENTITY_TYPE, ENTITY_ID, PERFORMED_BY, DETAILS)
-         VALUES ('UPDATE', 'USER', :entity_id, :performed_by, :details)`,
-        { entity_id: userId, performed_by: user.user_id, details: `Updated user ${userId} role to role_id ${body.role_id}` }
+        `INSERT INTO AUDIT_LOG (TABLE_NAME, RECORD_ID, ACTION, CHANGES, PERFORMED_BY)
+         VALUES (:entity_type, :entity_id, :action, :details, (SELECT USERNAME FROM USERS WHERE USER_ID = :performed_by))`,
+        { entity_type: 'USER', entity_id: userId, action: 'UPDATE', details: `Updated user ${userId} role to role_id ${body.role_id}`, performed_by: user.user_id }
       )
     })
 
