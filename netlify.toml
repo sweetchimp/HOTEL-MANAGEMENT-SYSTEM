@@ -14,7 +14,8 @@
 
 [functions]
   node_bundler = "esbuild"
-  included_files = ["netlify/functions/_shared/**/*"]
+  included_files = ["netlify/functions/**/*"]
+  external_node_modules = ["oracledb", "bcryptjs", "jsonwebtoken"]
 
 [functions.environment]
   DB_MODE = "mock"
@@ -25,11 +26,6 @@
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
 
 [[redirects]]
   from = "/*"
