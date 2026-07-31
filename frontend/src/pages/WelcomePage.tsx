@@ -38,10 +38,10 @@ export default function WelcomePage() {
         </div>
 
         <button
-          onClick={() => navigate('/dashboard')}
+          onClick={() => navigate('/login')}
           className="w-full bg-blue-700 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-800 transition-colors duration-200"
         >
-          Go to Dashboard
+          Sign in
         </button>
       </div>
     </div>

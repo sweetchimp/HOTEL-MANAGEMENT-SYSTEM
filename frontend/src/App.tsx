@@ -3,6 +3,7 @@ import { AuthProvider } from './components/auth/AuthProvider'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import DashboardLayout from './layouts/DashboardLayout'
 import WelcomePage from './pages/WelcomePage'
+import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import RoomsPage from './pages/RoomsPage'
 import GuestsPage from './pages/GuestsPage'
@@ -24,6 +25,7 @@ function App() {
     <AuthProvider>
       <Routes>
         <Route path="/" element={<WelcomePage />} />
+        <Route path="/login" element={<LoginPage />} />
         <Route
           path="/dashboard"
           element={
