@@ -63,4 +63,8 @@
   .badge-neutral {
     @apply badge bg-surface-100 text-surface-600;
   }
+
+  .table-wrap {
+    @apply overflow-x-auto;
+  }
 }

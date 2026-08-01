@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../services/api'
+import { formatCurrency } from '../utils/currency'
 import type { ReservationListItem, GuestListItem, RoomType, PaginatedResponse } from '../types'
 
 export default function ReservationsPage() {
@@ -337,11 +338,11 @@ export default function ReservationsPage() {
                   onChange={e => setForm({ ...form, room_type_id: Number(e.target.value) })}
                 >
                   {roomTypes.map(t => (
-                    <option key={t.type_id} value={t.type_id}>{t.type_name} — ${t.base_price}/night</option>
+                    <option key={t.type_id} value={t.type_id}>{t.type_name} — {formatCurrency(t.base_price)}/night</option>
                   ))}
                 </select>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-surface-600 mb-1">Check-in Date *</label>
                   <input

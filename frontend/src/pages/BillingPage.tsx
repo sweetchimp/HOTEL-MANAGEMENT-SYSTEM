@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { api } from '../services/api'
+import { formatCurrency } from '../utils/currency'
 import type {
   InvoiceListItem, InvoiceDetail, InvoiceBalance,
   CreateInvoiceRequest, AddInvoiceItemRequest, RecordPaymentRequest,
@@ -171,7 +172,7 @@ export default function BillingPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-semibold text-surface-900">Billing</h1>
           <p className="text-surface-500 mt-1">Manage invoices and record payments.</p>
@@ -185,7 +186,7 @@ export default function BillingPage() {
         <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">{error}</div>
       )}
 
-      <div className="flex gap-2 mb-4">
+      <div className="flex flex-wrap gap-2 mb-4">
         {filters.map((f) => (
           <button
             key={f || 'all'}
@@ -201,7 +202,7 @@ export default function BillingPage() {
         ))}
       </div>
 
-      <div className="card overflow-hidden">
+      <div className="card overflow-x-auto">
         <table className="w-full text-left">
           <thead>
             <tr className="border-b border-surface-200 bg-surface-50">
@@ -229,7 +230,7 @@ export default function BillingPage() {
                   <td className="p-3 text-sm font-medium text-surface-900">#{inv.invoice_id}</td>
                   <td className="p-3 text-sm text-surface-600">{inv.booking_id}</td>
                   <td className="p-3 text-sm text-surface-600">{inv.guest_id}</td>
-                  <td className="p-3 text-sm font-medium text-surface-900">${Number(inv.total_amount).toFixed(2)}</td>
+                  <td className="p-3 text-sm font-medium text-surface-900">{formatCurrency(Number(inv.total_amount))}</td>
                   <td className="p-3">
                     <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLES[inv.status] || ''}`}>
                       {inv.status.replace('_', ' ')}
@@ -254,18 +255,18 @@ export default function BillingPage() {
                     <p className="text-center text-surface-400 py-4">Loading details...</p>
                   ) : (
                     <div className="space-y-4">
-                      <div className="grid grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div className="bg-white p-3 rounded-lg border border-surface-200">
                           <p className="text-xs text-surface-500 uppercase font-medium">Total Amount</p>
-                          <p className="text-lg font-semibold text-surface-900">${Number(detail.invoice.total_amount).toFixed(2)}</p>
+                          <p className="text-lg font-semibold text-surface-900">{formatCurrency(Number(detail.invoice.total_amount))}</p>
                         </div>
                         <div className="bg-white p-3 rounded-lg border border-surface-200">
                           <p className="text-xs text-surface-500 uppercase font-medium">Total Paid</p>
-                          <p className="text-lg font-semibold text-surface-900">${(balance ? Number(balance.total_paid) : 0).toFixed(2)}</p>
+                          <p className="text-lg font-semibold text-surface-900">{formatCurrency(balance ? Number(balance.total_paid) : 0)}</p>
                         </div>
                         <div className="bg-white p-3 rounded-lg border border-surface-200">
                           <p className="text-xs text-surface-500 uppercase font-medium">Balance</p>
-                          <p className="text-lg font-semibold text-surface-900">${(balance ? Number(balance.balance) : 0).toFixed(2)}</p>
+                          <p className="text-lg font-semibold text-surface-900">{formatCurrency(balance ? Number(balance.balance) : 0)}</p>
                         </div>
                       </div>
 
@@ -293,8 +294,8 @@ export default function BillingPage() {
                               <tr key={item.item_id} className="border-b border-surface-100">
                                 <td className="p-2 text-surface-700">{item.description}</td>
                                 <td className="p-2 text-surface-600">{item.quantity}</td>
-                                <td className="p-2 text-surface-600">${Number(item.unit_price).toFixed(2)}</td>
-                                <td className="p-2 font-medium text-surface-900">${Number(item.total).toFixed(2)}</td>
+                                <td className="p-2 text-surface-600">{formatCurrency(Number(item.unit_price))}</td>
+                                <td className="p-2 font-medium text-surface-900">{formatCurrency(Number(item.total))}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -334,7 +335,7 @@ export default function BillingPage() {
                                       {p.payment_method}
                                     </span>
                                   </td>
-                                  <td className="p-2 font-medium text-surface-900">${Number(p.amount).toFixed(2)}</td>
+                                  <td className="p-2 font-medium text-surface-900">{formatCurrency(Number(p.amount))}</td>
                                   <td className="p-2 text-surface-500">{p.reference_number || '-'}</td>
                                 </tr>
                               ))
@@ -363,7 +364,7 @@ export default function BillingPage() {
 
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-semibold text-surface-900 mb-4">Create Invoice</h3>
             {actionError && <p className="mb-3 text-sm text-red-600">{actionError}</p>}
             <div className="space-y-3">
@@ -384,7 +385,7 @@ export default function BillingPage() {
 
       {showItemModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-semibold text-surface-900 mb-4">Add Invoice Item</h3>
             {actionError && <p className="mb-3 text-sm text-red-600">{actionError}</p>}
             <div className="space-y-3">
@@ -392,7 +393,7 @@ export default function BillingPage() {
                 <label className="block text-sm font-medium text-surface-700 mb-1">Description</label>
                 <input type="text" value={itemDesc} onChange={(e) => setItemDesc(e.target.value)} className="input-field" placeholder="Item description" />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-surface-700 mb-1">Quantity</label>
                   <input type="number" min="1" value={itemQty} onChange={(e) => setItemQty(e.target.value)} className="input-field" />
@@ -415,7 +416,7 @@ export default function BillingPage() {
 
       {showPaymentModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-semibold text-surface-900 mb-4">Record Payment</h3>
             {actionError && <p className="mb-3 text-sm text-red-600">{actionError}</p>}
             <div className="space-y-3">

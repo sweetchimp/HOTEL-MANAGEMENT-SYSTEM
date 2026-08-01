@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../services/api'
+import { formatCurrency } from '../utils/currency'
 import type { StaffMember, PayrollRecord } from '../types'
 
 export default function StaffPage() {
@@ -29,7 +30,6 @@ export default function StaffPage() {
 
   useEffect(() => {
     loadStaff()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   async function loadStaff() {
@@ -183,7 +183,7 @@ export default function StaffPage() {
                     <td className="py-3 px-4 text-surface-600">{m.email}</td>
                     <td className="py-3 px-4">{m.department}</td>
                     <td className="py-3 px-4">{m.position}</td>
-                    <td className="py-3 px-4 text-right">${m.salary?.toLocaleString()}</td>
+                    <td className="py-3 px-4 text-right">{formatCurrency(m.salary)}</td>
                     <td className="py-3 px-4 text-center">
                       <button
                         className="text-sm text-primary-600 hover:text-primary-800 font-medium"
@@ -226,7 +226,7 @@ export default function StaffPage() {
                   {payrollRecords.map(p => (
                     <tr key={p.id} className="border-b border-surface-100">
                       <td className="py-3 px-4">{p.month}</td>
-                      <td className="py-3 px-4 text-right">${p.salary_paid?.toLocaleString()}</td>
+                      <td className="py-3 px-4 text-right">{formatCurrency(p.salary_paid)}</td>
                       <td className="py-3 px-4">{p.payment_date}</td>
                     </tr>
                   ))}

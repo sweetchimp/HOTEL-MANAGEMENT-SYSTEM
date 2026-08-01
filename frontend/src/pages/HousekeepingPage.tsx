@@ -14,7 +14,6 @@ export default function HousekeepingPage() {
 
   useEffect(() => {
     loadTasks()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   async function loadTasks() {
@@ -63,7 +62,7 @@ export default function HousekeepingPage() {
         </div>
       )}
 
-      <div className="mt-6 grid grid-cols-3 gap-4">
+      <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="card text-center">
           <p className="text-3xl font-bold text-primary-600">{tasks.length}</p>
           <p className="text-sm text-surface-500 mt-1">Total Tasks</p>

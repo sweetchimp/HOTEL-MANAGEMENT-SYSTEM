@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { api } from '../services/api'
+import { formatCurrency, formatCurrencyCompact } from '../utils/currency'
 import type {
   ReportSummary, MonthlyOccupancy, MonthlyRevenue,
   RoomTypeReport, PopularGuest,
@@ -59,7 +60,7 @@ export default function ReportsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-semibold text-surface-900">Reports</h1>
           <p className="text-surface-500 mt-1">Analytics, occupancy rates, and revenue reports.</p>
@@ -89,10 +90,10 @@ export default function ReportsPage() {
         <div className="text-center py-12 text-surface-400">Loading reports...</div>
       ) : (
         <div className="space-y-6">
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="card p-4">
               <p className="text-xs text-surface-500 uppercase font-medium">Total Revenue</p>
-              <p className="text-2xl font-bold text-surface-900 mt-1">${(summary?.totalRevenue ?? 0).toLocaleString()}</p>
+              <p className="text-2xl font-bold text-surface-900 mt-1">{formatCurrency(summary?.totalRevenue ?? 0)}</p>
             </div>
             <div className="card p-4">
               <p className="text-xs text-surface-500 uppercase font-medium">Occupancy Rate</p>
@@ -108,7 +109,7 @@ export default function ReportsPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="card p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-surface-700">Monthly Occupancy Rate</h3>
@@ -139,7 +140,7 @@ export default function ReportsPage() {
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-surface-700">Monthly Revenue</h3>
                 <button
-                  onClick={() => downloadCSV('revenue.csv', ['Month', 'Amount ($)'], revenue.map(r => [r.month, String(r.amount)]))}
+                  onClick={() => downloadCSV('revenue.csv', ['Month', 'Amount (UGX)'], revenue.map(r => [r.month, String(Math.round(r.amount * 3700))]))}
                   className="text-xs text-primary-600 hover:text-primary-800 font-medium"
                 >
                   Export CSV
@@ -148,7 +149,7 @@ export default function ReportsPage() {
               <div className="flex items-end gap-2 h-40">
                 {revenue.map((r) => (
                   <div key={r.month} className="flex-1 flex flex-col items-center">
-                    <span className="text-xs text-surface-500 mb-1">${(r.amount / 1000).toFixed(0)}k</span>
+                    <span className="text-xs text-surface-500 mb-1">{formatCurrencyCompact(r.amount)}</span>
                     <div
                       className="w-full bg-primary-400 rounded-t"
                       style={{ height: `${Math.max(4, (r.amount / maxRevenue) * 100)}%` }}
@@ -162,17 +163,18 @@ export default function ReportsPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="card p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-surface-700">Revenue by Room Type</h3>
                 <button
-                  onClick={() => downloadCSV('room-types.csv', ['Room Type', 'Bookings', 'Revenue ($)', 'Avg Rate ($)'], roomTypes.map(rt => [rt.type_name, String(rt.bookings), String(rt.revenue), String(rt.avg_rate)]))}
+                  onClick={() => downloadCSV('room-types.csv', ['Room Type', 'Bookings', 'Revenue (UGX)', 'Avg Rate (UGX)'], roomTypes.map(rt => [rt.type_name, String(rt.bookings), String(Math.round(rt.revenue * 3700)), String(Math.round(rt.avg_rate * 3700))]))}
                   className="text-xs text-primary-600 hover:text-primary-800 font-medium"
                 >
                   Export CSV
                 </button>
               </div>
+              <div className="table-wrap">
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-surface-200">
@@ -190,25 +192,27 @@ export default function ReportsPage() {
                       <tr key={i} className="border-b border-surface-100">
                         <td className="p-2 text-surface-700 font-medium">{rt.type_name}</td>
                         <td className="p-2 text-surface-600">{rt.bookings}</td>
-                        <td className="p-2 text-surface-900 font-medium">${Number(rt.revenue).toLocaleString()}</td>
-                        <td className="p-2 text-surface-600">${Number(rt.avg_rate).toFixed(2)}</td>
+                        <td className="p-2 text-surface-900 font-medium">{formatCurrency(Number(rt.revenue))}</td>
+                        <td className="p-2 text-surface-600">{formatCurrency(Number(rt.avg_rate))}</td>
                       </tr>
                     ))
                   )}
                 </tbody>
               </table>
+              </div>
             </div>
 
             <div className="card p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-surface-700">Top Guests</h3>
                 <button
-                  onClick={() => downloadCSV('popular-guests.csv', ['Guest', 'Stays', 'Total Spend ($)'], popularGuests.map(g => [`${g.first_name} ${g.last_name}`, String(g.total_stays), String(g.total_spend)]))}
+                  onClick={() => downloadCSV('popular-guests.csv', ['Guest', 'Stays', 'Total Spend (UGX)'], popularGuests.map(g => [`${g.first_name} ${g.last_name}`, String(g.total_stays), String(Math.round(g.total_spend * 3700))]))}
                   className="text-xs text-primary-600 hover:text-primary-800 font-medium"
                 >
                   Export CSV
                 </button>
               </div>
+              <div className="table-wrap">
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-surface-200">
@@ -225,12 +229,13 @@ export default function ReportsPage() {
                       <tr key={i} className="border-b border-surface-100">
                         <td className="p-2 text-surface-700 font-medium">{g.first_name} {g.last_name}</td>
                         <td className="p-2 text-surface-600">{g.total_stays}</td>
-                        <td className="p-2 text-surface-900 font-medium">${Number(g.total_spend).toLocaleString()}</td>
+                        <td className="p-2 text-surface-900 font-medium">{formatCurrency(Number(g.total_spend))}</td>
                       </tr>
                     ))
                   )}
                 </tbody>
               </table>
+              </div>
             </div>
           </div>
         </div>

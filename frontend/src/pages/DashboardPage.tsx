@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { api } from '../services/api'
+import { formatCurrency } from '../utils/currency'
 import type { DashboardStats } from '../types'
 
 export default function DashboardPage() {
@@ -61,7 +62,7 @@ export default function DashboardPage() {
         <div className="card">
           <p className="text-sm font-medium text-surface-500">Today's Revenue</p>
           <p className="text-3xl font-bold text-blue-600 mt-1">
-            {loading ? '...' : stats ? `$${stats.todayRevenue.toLocaleString()}` : '$—'}
+            {loading ? '...' : stats ? formatCurrency(stats.todayRevenue) : '—'}
           </p>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { api } from '../services/api'
 import type { AuditEntry } from '../types'
 
@@ -11,11 +11,7 @@ export default function AuditLogPage() {
   const [total, setTotal] = useState(0)
   const pageSize = 50
 
-  useEffect(() => {
-    loadAudit()
-  }, [actionFilter, page])
-
-  async function loadAudit() {
+  const loadAudit = useCallback(async () => {
     setLoading(true)
     const params = new URLSearchParams()
     if (actionFilter) params.set('action', actionFilter)
@@ -30,7 +26,11 @@ export default function AuditLogPage() {
       setError(res.error || 'Failed to load audit log')
     }
     setLoading(false)
-  }
+  }, [actionFilter, page])
+
+  useEffect(() => {
+    loadAudit()
+  }, [loadAudit])
 
   const totalPages = Math.ceil(total / pageSize)
 

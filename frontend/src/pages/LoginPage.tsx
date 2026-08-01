@@ -40,7 +40,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 to-blue-800 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-2xl p-12 max-w-md w-full">
+      <div className="bg-white rounded-lg shadow-2xl p-6 sm:p-12 max-w-md w-full">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-blue-900 mb-2">ALTONS HOTEL</h1>
           <p className="text-gray-600">Management System</p>

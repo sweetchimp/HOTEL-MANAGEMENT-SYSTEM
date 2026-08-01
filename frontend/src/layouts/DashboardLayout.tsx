@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import type { UserRole } from '../types'
@@ -29,6 +30,7 @@ function filterByRole(items: typeof navigation, role: UserRole) {
 export default function DashboardLayout() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const filteredNav = user ? filterByRole(navigation, user.role) : []
 
   const handleLogout = () => {
@@ -38,14 +40,46 @@ export default function DashboardLayout() {
 
   return (
     <div className="flex h-screen overflow-hidden">
+      {/* Mobile menu toggle */}
+      {!sidebarOpen && (
+        <button
+          className="md:hidden fixed top-4 left-4 z-50 bg-primary-500 text-white rounded-lg p-2 shadow-lg"
+          onClick={() => setSidebarOpen(true)}
+          aria-label="Open menu"
+        >
+          <span className="text-xl leading-none">☰</span>
+        </button>
+      )}
+
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-black/50 z-40"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-64 bg-primary-500 text-white flex flex-col">
+      <aside
+        className={`w-64 bg-primary-500 text-white flex flex-col fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 md:static md:translate-x-0 ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
         {/* Logo */}
-        <div className="p-6 border-b border-primary-600">
-          <h1 className="font-display text-xl font-bold text-accent-400">
-            ALTONSHOTEL
-          </h1>
-          <p className="text-primary-200 text-xs mt-1">Management System</p>
+        <div className="p-6 border-b border-primary-600 flex items-center justify-between">
+          <div>
+            <h1 className="font-display text-xl font-bold text-accent-400">
+              ALTONSHOTEL
+            </h1>
+            <p className="text-primary-200 text-xs mt-1">Management System</p>
+          </div>
+          <button
+            className="md:hidden text-primary-200 text-2xl leading-none hover:text-white"
+            onClick={() => setSidebarOpen(false)}
+            aria-label="Close menu"
+          >
+            ×
+          </button>
         </div>
 
         {/* Navigation */}
@@ -54,6 +88,7 @@ export default function DashboardLayout() {
             <NavLink
               key={item.href}
               to={item.href}
+              onClick={() => setSidebarOpen(false)}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 ${
                   isActive
@@ -94,7 +129,7 @@ export default function DashboardLayout() {
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
-        <div className="p-8">
+        <div className="p-4 pt-16 md:p-8">
           <Outlet />
         </div>
       </main>
