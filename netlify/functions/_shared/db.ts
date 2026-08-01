@@ -11,6 +11,7 @@ export interface QueryResult {
   rows: unknown[][]
   rowsAffected: number
   metaData?: unknown[]
+  outBinds?: unknown
 }
 
 export interface DBConnection {
@@ -48,15 +49,43 @@ class OracleConnection implements DBConnection {
     const oracledbMod = await import('oracledb')
     const oracledb = oracledbMod.default || oracledbMod
 
-    const result = await this.conn.execute(sql, binds, {
+    // Normalize legacy bind definitions ({ dir: 3001, type: 2010 }) that the
+    // handlers were written against for mock mode. oracledb 6.x uses different
+    // constants (BIND_OUT = 3003, NUMBER = DbType object), and `dir: 3001`
+    // actually means BIND_IN, so remap to a true OUT bind.
+    const normalized: Record<string, unknown> = {}
+    for (const [key, value] of Object.entries(binds)) {
+      if (value && typeof value === 'object' && 'dir' in value && typeof (value as Record<string, unknown>).dir === 'number') {
+        normalized[key] = {
+          ...(value as Record<string, unknown>),
+          dir: (value as Record<string, unknown>).dir === 3001 ? oracledb.BIND_OUT : (value as Record<string, unknown>).dir,
+          type: (value as Record<string, unknown>).type === 2010 ? oracledb.NUMBER : (value as Record<string, unknown>).type,
+        }
+      } else {
+        normalized[key] = value
+      }
+    }
+
+    const result = await this.conn.execute(sql, normalized, {
       autoCommit: true,
       outFormat: oracledb.OUT_FORMAT_ARRAY,
     })
 
-    const rows = (result.rows || []) as unknown[][]
-    const rowsAffected = (result.rowsAffected || []).reduce((sum: number, n: number) => sum + n, 0)
+    let rows = (result.rows || []) as unknown[][]
+    if (result.outBinds) {
+      const ob = result.outBinds as unknown
+      const values = Array.isArray(ob) ? ob : Object.values(ob as Record<string, unknown>)
+      const first = values[0]
+      if (Array.isArray(first)) {
+        rows = first.map((v: unknown) => [v])
+      }
+    }
+    const affected = result.rowsAffected
+    const rowsAffected = typeof affected === 'number'
+      ? affected
+      : (affected || []).reduce((sum: number, n: number) => sum + n, 0)
 
-    return { rows, rowsAffected, metaData: result.metaData }
+    return { rows, rowsAffected, metaData: result.metaData, outBinds: result.outBinds }
   }
 
   async close() {
