@@ -106,6 +106,11 @@ export async function getConnection(): Promise<DBConnection> {
 
   const oraclePool = await createOraclePool()
   const conn = await oraclePool.getConnection()
+  // The app sends ISO dates ('YYYY-MM-DD'). Without matching NLS formats,
+  // Oracle rejects string-to-DATE/TIMESTAMP conversions with ORA-01861 and
+  // date comparisons silently misbehave.
+  await conn.execute("ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD'")
+  await conn.execute("ALTER SESSION SET NLS_TIMESTAMP_FORMAT = 'YYYY-MM-DD'")
   return new OracleConnection(conn)
 }
 

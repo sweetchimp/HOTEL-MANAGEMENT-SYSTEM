@@ -30,8 +30,8 @@ export default async (req: Request) => {
 
       if (params.status) { where += ' AND r.STATUS = :status'; binds.status = params.status }
       if (params.guest_id) { where += ' AND r.GUEST_ID = :guest_id'; binds.guest_id = params.guest_id }
-      if (params.from) { where += ' AND r.CHECK_IN_DATE >= :from'; binds.from = params.from }
-      if (params.to) { where += ' AND r.CHECK_OUT_DATE <= :to'; binds.to = params.to }
+      if (params.from) { where += ' AND r.CHECK_IN_DATE >= :from_date'; binds.from_date = params.from }
+      if (params.to) { where += ' AND r.CHECK_OUT_DATE <= :to_date'; binds.to_date = params.to }
 
       const countResult = await conn.execute(`SELECT COUNT(*) FROM RESERVATIONS r ${where}`, binds)
       const total = Number(countResult.rows[0]?.[0] || 0)

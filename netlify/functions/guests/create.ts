@@ -24,7 +24,7 @@ export default async (req: Request) => {
         'INSERT INTO GUESTS (FIRST_NAME, LAST_NAME, EMAIL, PHONE, ID_TYPE, ID_NUMBER, ADDRESS, NATIONALITY) VALUES (:fn, :ln, :email, :phone, :id_type, :id_num, :addr, :nat) RETURNING GUEST_ID INTO :new_id',
         {
           fn: body.first_name, ln: body.last_name, email: body.email || null,
-          phone: body.phone, id_type: body.id_type, id_number: body.id_number,
+          phone: body.phone, id_type: body.id_type, id_num: body.id_number,
           addr: body.address || null, nat: body.nationality || null,
           new_id: { dir: 3001, type: 2010 }
         }
