@@ -179,19 +179,21 @@ export default function AdminBookingRequestsPage() {
     <Card className="animate-slide-up">
       <CardContent className="p-4">
         <div className="flex flex-wrap items-end gap-4">
-          <div className="relative min-w-[220px] flex-1 space-y-1">
+          <div className="min-w-[220px] flex-1 space-y-1">
             <Label htmlFor="req_search">Search</Label>
-            <Search className="absolute left-3 top-8.5 h-4 w-4 -translate-y-1/2 text-steel-400" />
-            <Input
-              id="req_search"
-              placeholder="Name or email…"
-              className="pl-9"
-              value={search}
-              onChange={e => {
-                setSearch(e.target.value)
-                setPage(1)
-              }}
-            />
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-steel-400" />
+              <Input
+                id="req_search"
+                placeholder="Name or email…"
+                className="pl-9"
+                value={search}
+                onChange={e => {
+                  setSearch(e.target.value)
+                  setPage(1)
+                }}
+              />
+            </div>
           </div>
           <div className="space-y-1">
             <Label htmlFor="req_from">Stay from</Label>
