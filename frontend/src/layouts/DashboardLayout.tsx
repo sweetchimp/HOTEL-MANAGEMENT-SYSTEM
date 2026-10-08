@@ -16,6 +16,7 @@ import {
   Settings,
   History,
   UserCog,
+  Inbox,
   Menu,
   X,
   LogOut,
@@ -44,6 +45,7 @@ const navigation: {
   { name: 'Reports', href: '/dashboard/reports', icon: BarChart3, roles: ['ADMIN', 'MANAGER'] },
 
   // Phase 9 — Settings & Admin
+  { name: 'Booking Requests', href: '/dashboard/booking-requests', icon: Inbox, roles: ['ADMIN'] },
   { name: 'Settings', href: '/dashboard/settings', icon: Settings, roles: ['ADMIN'] },
   { name: 'Audit Log', href: '/dashboard/audit', icon: History, roles: ['ADMIN'] },
   { name: 'Users', href: '/dashboard/users', icon: UserCog, roles: ['ADMIN'] },

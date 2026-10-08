@@ -148,6 +148,13 @@ let PAYROLL = [
   { ID: 13, STAFF_ID: 5, MONTH: '2026-07', SALARY_PAID: 2917, PAYMENT_DATE: '2026-07-31' },
 ]
 
+let BOOKING_REQUESTS = [
+  { ID: 1, GUEST_NAME: 'Alice Cooper', GUEST_EMAIL: 'alice.cooper@email.com', GUEST_PHONE: '+1-555-0111', ID_TYPE: 'PASSPORT', ID_NUMBER: 'US998877', ROOM_TYPE_ID: 2, ROOM_ID: null, CHECK_IN_DATE: '2026-11-15', CHECK_OUT_DATE: '2026-11-18', NUM_GUESTS: 2, TOTAL_PRICE: 450, SPECIAL_REQUESTS: 'Late arrival around 11pm', PAYMENT_METHOD: 'CARD', PROMO_CODE: '', STATUS: 'pending', REJECTION_REASON: null, NOTES: '', APPROVED_BY: null, APPROVED_AT: null, CREATED_AT: now, UPDATED_AT: now },
+  { ID: 2, GUEST_NAME: 'Brian May', GUEST_EMAIL: 'brian.may@email.com', GUEST_PHONE: '+44-7700-900456', ID_TYPE: 'NATIONAL_ID', ID_NUMBER: 'UK776655', ROOM_TYPE_ID: 1, ROOM_ID: null, CHECK_IN_DATE: '2026-12-01', CHECK_OUT_DATE: '2026-12-05', NUM_GUESTS: 1, TOTAL_PRICE: 320, SPECIAL_REQUESTS: '', PAYMENT_METHOD: 'CASH', PROMO_CODE: 'WELCOME10', STATUS: 'pending', REJECTION_REASON: null, NOTES: '', APPROVED_BY: null, APPROVED_AT: null, CREATED_AT: now, UPDATED_AT: now },
+  { ID: 3, GUEST_NAME: 'Chloe Kim', GUEST_EMAIL: 'chloe.kim@email.com', GUEST_PHONE: '+82-10-1234-5678', ID_TYPE: 'PASSPORT', ID_NUMBER: 'KR554433', ROOM_TYPE_ID: 3, ROOM_ID: 11, CHECK_IN_DATE: '2026-10-20', CHECK_OUT_DATE: '2026-10-23', NUM_GUESTS: 3, TOTAL_PRICE: 750, SPECIAL_REQUESTS: 'Baby cot needed', PAYMENT_METHOD: 'CARD', PROMO_CODE: '', STATUS: 'approved', REJECTION_REASON: null, NOTES: '', APPROVED_BY: 1, APPROVED_AT: now, CREATED_AT: now, UPDATED_AT: now },
+  { ID: 4, GUEST_NAME: 'David Okafor', GUEST_EMAIL: 'david.okafor@email.com', GUEST_PHONE: '+234-801-234-5678', ID_TYPE: 'OTHER', ID_NUMBER: 'NG112233', ROOM_TYPE_ID: 4, ROOM_ID: null, CHECK_IN_DATE: '2026-10-25', CHECK_OUT_DATE: '2026-10-27', NUM_GUESTS: 2, TOTAL_PRICE: 1000, SPECIAL_REQUESTS: '', PAYMENT_METHOD: 'CARD', PROMO_CODE: '', STATUS: 'rejected', REJECTION_REASON: 'Room type not available for those dates', NOTES: '', APPROVED_BY: 1, APPROVED_AT: now, CREATED_AT: now, UPDATED_AT: now },
+]
+
 // --- Mock Connection ---
 class MockConnection {
   async execute(sql: string, binds: Record<string, unknown> = {}) {
@@ -193,6 +200,7 @@ class MockConnection {
     MAINTENANCE: ['ID', 'ROOM_ID', 'ISSUE_TYPE', 'DESCRIPTION', 'STATUS', 'CREATED_DATE', 'ASSIGNED_TO', 'RESOLVED_DATE', 'NOTES'],
     STAFF: ['ID', 'FULL_NAME', 'EMAIL', 'PHONE', 'DEPARTMENT', 'POSITION', 'SALARY', 'HIRE_DATE', 'IS_ACTIVE'],
     PAYROLL: ['ID', 'STAFF_ID', 'MONTH', 'SALARY_PAID', 'PAYMENT_DATE'],
+    BOOKING_REQUESTS: ['ID', 'GUEST_NAME', 'GUEST_EMAIL', 'GUEST_PHONE', 'ID_TYPE', 'ID_NUMBER', 'ROOM_TYPE_ID', 'ROOM_ID', 'CHECK_IN_DATE', 'CHECK_OUT_DATE', 'NUM_GUESTS', 'TOTAL_PRICE', 'SPECIAL_REQUESTS', 'PAYMENT_METHOD', 'PROMO_CODE', 'STATUS', 'REJECTION_REASON', 'NOTES', 'APPROVED_BY', 'APPROVED_AT', 'CREATED_AT', 'UPDATED_AT'],
     SYSTEM_SETTINGS: ['SETTING_KEY', 'SETTING_VALUE', 'DESCRIPTION', 'UPDATED_AT', 'UPDATED_BY'],
     AUDIT_LOG: ['ID', 'ACTION', 'ENTITY_TYPE', 'ENTITY_ID', 'PERFORMED_BY', 'PERFORMED_BY_ID', 'PERFORMED_AT', 'DETAILS'],
   }
@@ -255,6 +263,8 @@ class MockConnection {
         let filtered = [...INVOICES]
         if (binds.status) filtered = filtered.filter(i => i.STATUS === binds.status)
         rows = [[filtered.length]]
+      } else if (upper.includes('FROM BOOKING_REQUESTS')) {
+        rows = [[this._filterBookingRequests(sql, binds).length]]
       } else if (upper.includes('FROM BOOKINGS')) {
         let filtered = [...BOOKINGS]
         if (binds.status) filtered = filtered.filter(b => b.STATUS === binds.status)
@@ -400,6 +410,9 @@ class MockConnection {
       const boundRoomId2 = binds.room_id
       if (boundRoomId2) filtered = filtered.filter(b => b.ROOM_ID === Number(boundRoomId2))
       rows = filtered.map(b => [b.BOOKING_ID, b.RESERVATION_ID, b.ROOM_ID, b.CHECK_IN_DATE, b.CHECK_OUT_DATE, b.RATE_PER_NIGHT, b.STATUS, b.CREATED_AT])
+    } else if (upper.includes('FROM BOOKING_REQUESTS')) {
+      const filtered = this._filterBookingRequests(sql, binds)
+      rows = filtered.map(r => [r.ID, r.GUEST_NAME, r.GUEST_EMAIL, r.GUEST_PHONE, r.ID_TYPE, r.ID_NUMBER, r.ROOM_TYPE_ID, r.ROOM_ID, r.CHECK_IN_DATE, r.CHECK_OUT_DATE, r.NUM_GUESTS, r.TOTAL_PRICE, r.SPECIAL_REQUESTS, r.PAYMENT_METHOD, r.PROMO_CODE, r.STATUS, r.REJECTION_REASON, r.NOTES, r.APPROVED_BY, r.APPROVED_AT, r.CREATED_AT, r.UPDATED_AT])
     } else if (upper.includes('FROM CHECKINS')) {
       let filtered = [...CHECKINS]
       const boundCheckinId = binds.checkin_id || binds.p_checkin_id
@@ -475,7 +488,48 @@ class MockConnection {
       }
     }
 
+    // Generic OFFSET/FETCH pagination
+    const pageMatch = upper.match(/OFFSET\s+(:?\w+)\s+ROWS\s+FETCH\s+(?:NEXT|FIRST)\s+(:?\w+)\s+ROWS?\s+ONLY/)
+    if (pageMatch) {
+      const resolveVal = (v: string) => v.startsWith(':') ? Number(binds[v.slice(1)] || 0) : Number(v)
+      const offset = resolveVal(pageMatch[1])
+      const limit = resolveVal(pageMatch[2])
+      rows = rows.slice(offset, offset + limit)
+    }
+
     return { rows: this._projectColumns(sql, rows), metaData: rows.length > 0 ? rows[0].map(() => ({})) : [] }
+  }
+
+  private _filterBookingRequests(sql: string, binds: Record<string, unknown>) {
+    const upper = sql.toUpperCase()
+    let filtered = [...BOOKING_REQUESTS]
+    const boundId = binds.id || binds.request_id
+    if (boundId) filtered = filtered.filter(r => r.ID === Number(boundId))
+    if (binds.status) filtered = filtered.filter(r => r.STATUS === binds.status)
+    const searchVal = binds.search
+    if (searchVal) {
+      const q = String(searchVal).replace(/%/g, '').toUpperCase()
+      filtered = filtered.filter(r =>
+        r.GUEST_NAME.toUpperCase().includes(q) ||
+        r.GUEST_EMAIL.toUpperCase().includes(q) ||
+        r.GUEST_PHONE.includes(q)
+      )
+    }
+    if (binds.from_date) filtered = filtered.filter(r => r.CHECK_IN_DATE >= String(binds.from_date))
+    if (binds.to_date) filtered = filtered.filter(r => r.CHECK_OUT_DATE <= String(binds.to_date))
+    const orderMatch = upper.match(/ORDER BY\s+(?:\w+\.)?(\w+)\s+(ASC|DESC)/)
+    if (orderMatch) {
+      const [, col, dir] = orderMatch
+      const key = col.toUpperCase() as keyof (typeof BOOKING_REQUESTS)[number]
+      filtered.sort((a, b) => {
+        const av = a[key], bv = b[key]
+        let cmp = 0
+        if (av !== bv) cmp = (av ?? '') < (bv ?? '') ? -1 : 1
+        else cmp = a.ID - b.ID
+        return dir === 'DESC' ? -cmp : cmp
+      })
+    }
+    return filtered
   }
 
   private _executeInsert(sql: string, binds: Record<string, unknown>) {
@@ -496,6 +550,11 @@ class MockConnection {
     }
     if (upper.includes('INTO RESERVATIONS')) {
       RESERVATIONS.push({ RESERVATION_ID: id, GUEST_ID: Number(binds.guest_id || binds.p_guest_id || 0), ROOM_TYPE_ID: Number(binds.room_type_id || binds.type_id || 0), CHECK_IN_DATE: String(binds.check_in_date || binds.check_in || ''), CHECK_OUT_DATE: String(binds.check_out_date || binds.check_out || ''), STATUS: String(binds.status || 'PENDING'), SPECIAL_REQUESTS: String(binds.special_requests || binds.requests || ''), CREATED_BY: Number(binds.created_by || 1), CREATED_AT: now, UPDATED_AT: now })
+      return { rows: [[id]], rowsAffected: 1 }
+    }
+    if (upper.includes('INTO BOOKING_REQUESTS')) {
+      const createdAt = new Date().toISOString()
+      BOOKING_REQUESTS.push({ ID: id, GUEST_NAME: String(binds.guest_name || ''), GUEST_EMAIL: String(binds.guest_email || ''), GUEST_PHONE: String(binds.guest_phone || ''), ID_TYPE: String(binds.id_type || ''), ID_NUMBER: String(binds.id_number || ''), ROOM_TYPE_ID: Number(binds.room_type_id || 0), ROOM_ID: binds.room_id ? Number(binds.room_id) : null, CHECK_IN_DATE: String(binds.check_in_date || ''), CHECK_OUT_DATE: String(binds.check_out_date || ''), NUM_GUESTS: Number(binds.num_guests || 1), TOTAL_PRICE: Number(binds.total_price || 0), SPECIAL_REQUESTS: String(binds.special_requests || ''), PAYMENT_METHOD: String(binds.payment_method || ''), PROMO_CODE: String(binds.promo_code || ''), STATUS: String(binds.status || 'pending'), REJECTION_REASON: null, NOTES: String(binds.notes || ''), APPROVED_BY: null, APPROVED_AT: null, CREATED_AT: createdAt, UPDATED_AT: createdAt })
       return { rows: [[id]], rowsAffected: 1 }
     }
     if (upper.includes('INTO BOOKINGS')) {
@@ -644,6 +703,24 @@ class MockConnection {
         if (m) m.STATUS = statusMatch[1]
       }
       return { rowsAffected: 1 }
+    }
+    if (upper.includes('UPDATE BOOKING_REQUESTS')) {
+      const boundId = binds.id || binds.request_id
+      const target = boundId ? BOOKING_REQUESTS.find(r => r.ID === Number(boundId)) : null
+      if (target) {
+        if (binds.status) target.STATUS = String(binds.status)
+        else {
+          const statusMatch = upper.match(/SET\s+STATUS\s*=\s*'(\w+)'/)
+          if (statusMatch) target.STATUS = statusMatch[1].toLowerCase()
+        }
+        if (binds.approved_by !== undefined && binds.approved_by !== null) target.APPROVED_BY = Number(binds.approved_by)
+        if (binds.approved_at !== undefined && binds.approved_at !== null) target.APPROVED_AT = binds.approved_at instanceof Date ? binds.approved_at.toISOString() : String(binds.approved_at)
+        if (binds.rejection_reason !== undefined) target.REJECTION_REASON = binds.rejection_reason === null ? null : String(binds.rejection_reason)
+        if (binds.notes !== undefined) target.NOTES = binds.notes === null ? '' : String(binds.notes)
+        if (binds.room_id !== undefined) target.ROOM_ID = binds.room_id === null ? null : Number(binds.room_id)
+        target.UPDATED_AT = now
+      }
+      return { rowsAffected: target ? 1 : 0 }
     }
     if (upper.includes('UPDATE STAFF')) {
       const boundId = binds.id || binds.p_id

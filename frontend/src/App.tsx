@@ -20,12 +20,15 @@ import SchedulePage from './pages/SchedulePage'
 import SettingsPage from './pages/SettingsPage'
 import AuditLogPage from './pages/AuditLogPage'
 import AdminUsersPage from './pages/AdminUsersPage'
+import PublicBookingPage from './pages/PublicBookingPage'
+import AdminBookingRequestsPage from './pages/AdminBookingRequestsPage'
 
 function App() {
   return (
     <AuthProvider>
       <Routes>
         <Route path="/" element={<WelcomePage />} />
+        <Route path="/booking" element={<PublicBookingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route
           path="/dashboard"
@@ -50,6 +53,7 @@ function App() {
           <Route path="settings" element={<SettingsPage />} />
           <Route path="audit" element={<AuditLogPage />} />
           <Route path="users" element={<AdminUsersPage />} />
+          <Route path="booking-requests" element={<AdminBookingRequestsPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

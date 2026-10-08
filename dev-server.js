@@ -103,6 +103,16 @@ const ROUTES = {
   'GET /api/audit': './netlify/functions/audit/list.ts',
   'GET /api/users': './netlify/functions/users/list.ts',
   'PUT /api/users/:id/role': './netlify/functions/users/update-role.ts',
+
+  // Phase 5 — Public booking
+  'GET /api/public/availability': './netlify/functions/public/availability.ts',
+  'POST /api/public/bookings': './netlify/functions/public/create-booking.ts',
+
+  // Phase 5 — Booking requests (admin)
+  'GET /api/bookings/pending': './netlify/functions/booking-requests/list.ts',
+  'GET /api/bookings/requests': './netlify/functions/booking-requests/list.ts',
+  'PUT /api/bookings/:id/approve': './netlify/functions/booking-requests/approve.ts',
+  'PUT /api/bookings/:id/reject': './netlify/functions/booking-requests/reject.ts',
 }
 
 function matchRoute(method, pathname) {

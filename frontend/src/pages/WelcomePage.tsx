@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { Check, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import BookingWidget from '@/components/booking/BookingWidget'
 
 const FEATURES = [
   'Room Management',
@@ -71,15 +72,30 @@ export default function WelcomePage() {
           </ul>
         </div>
 
+        {/* Booking widget */}
+        <div className="mt-6">
+          <BookingWidget />
+        </div>
+
         {/* Sign in */}
-        <Button
-          variant="accent"
-          size="lg"
-          className="mt-8 w-full max-w-xs"
-          onClick={() => navigate('/login')}
-        >
-          Sign in <ArrowRight className="h-4 w-4" />
-        </Button>
+        <div className="mt-8 flex flex-col items-center gap-3">
+          <Button
+            variant="accent"
+            size="lg"
+            className="w-full max-w-xs"
+            onClick={() => navigate('/login')}
+          >
+            Staff sign in <ArrowRight className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="lg"
+            className="w-full max-w-xs border-white/30 bg-transparent text-white hover:bg-white/10 hover:text-white"
+            onClick={() => navigate('/booking')}
+          >
+            Request a booking online
+          </Button>
+        </div>
 
         <p className="mt-8 text-xs text-primary-300">
           &copy; {new Date().getFullYear()} ALTONS Hotel. All rights reserved.

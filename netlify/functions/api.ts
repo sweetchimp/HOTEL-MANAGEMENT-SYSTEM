@@ -69,6 +69,12 @@ const ROUTES: Record<string, RouteLoader> = {
   'GET /api/audit': () => import('./audit/list'),
   'GET /api/users': () => import('./users/list'),
   'PUT /api/users/:id/role': () => import('./users/update-role'),
+  'GET /api/public/availability': () => import('./public/availability'),
+  'POST /api/public/bookings': () => import('./public/create-booking'),
+  'GET /api/bookings/pending': () => import('./booking-requests/list'),
+  'GET /api/bookings/requests': () => import('./booking-requests/list'),
+  'PUT /api/bookings/:id/approve': () => import('./booking-requests/approve'),
+  'PUT /api/bookings/:id/reject': () => import('./booking-requests/reject'),
 }
 
 function matchRoute(method: string, pathname: string): RouteLoader | null {

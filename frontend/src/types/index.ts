@@ -364,3 +364,67 @@ export interface AdminUser {
   last_login: string | null
   created_at: string
 }
+
+// --- Public Booking (Phase 5) ---
+export type BookingRequestStatus = 'pending' | 'approved' | 'rejected'
+
+export interface BookingRequest {
+  ID: number
+  GUEST_NAME: string
+  GUEST_EMAIL: string
+  GUEST_PHONE: string
+  ID_TYPE: string
+  ID_NUMBER: string
+  ROOM_TYPE_ID: number
+  ROOM_ID: number | null
+  CHECK_IN_DATE: string
+  CHECK_OUT_DATE: string
+  NUM_GUESTS: number
+  TOTAL_PRICE: number
+  SPECIAL_REQUESTS: string | null
+  PAYMENT_METHOD: string | null
+  PROMO_CODE: string | null
+  STATUS: BookingRequestStatus
+  REJECTION_REASON: string | null
+  NOTES: string | null
+  APPROVED_BY: number | null
+  APPROVED_AT: string | null
+  CREATED_AT: string
+  UPDATED_AT: string
+}
+
+export interface AvailableRoom {
+  room_id: number
+  room_number: string
+  type_id: number
+  type_name: string
+  base_price: number
+  max_occupancy: number
+  nights: number
+  total: number
+}
+
+export interface AvailabilityResult {
+  check_in: string
+  check_out: string
+  nights: number
+  available: number
+  rooms: AvailableRoom[]
+  room_types: RoomType[]
+}
+
+export interface PublicBookingPayload {
+  guest_name: string
+  guest_email: string
+  guest_phone: string
+  id_type: string
+  id_number: string
+  room_type_id: number
+  room_id: number | null
+  check_in_date: string
+  check_out_date: string
+  num_guests: number
+  special_requests?: string
+  payment_method?: string
+  promo?: string
+}
