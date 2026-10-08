@@ -51,6 +51,15 @@ class ApiClient {
     try {
       data = await response.json()
     } catch {
+      const body = await response.text().catch(() => '')
+      // Vite dev proxy answers with a plain-text/HTML 500 body when the API
+      // backend is unreachable, so surface the real problem instead.
+      if (!body || /tried to proxy|proxy request|ECONNREFUSED|Cannot GET|Cannot POST|Cannot PATCH|Cannot PUT|Cannot DELETE/i.test(body)) {
+        return {
+          success: false,
+          error: 'Backend server is not running. Start it with `npx tsx dev-server.js`.',
+        }
+      }
       return { success: false, error: 'Invalid server response' }
     }
 
