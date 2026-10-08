@@ -17,6 +17,8 @@ import {
   History,
   UserCog,
   Inbox,
+  Send,
+  Wand2,
   Menu,
   X,
   LogOut,
@@ -43,6 +45,12 @@ const navigation: {
   { name: 'Schedule', href: '/dashboard/schedule', icon: ClipboardList, roles: ['ADMIN', 'MANAGER'] },
   { name: 'Billing', href: '/dashboard/billing', icon: Wallet, roles: ['ADMIN', 'RECEPTIONIST', 'MANAGER'] },
   { name: 'Reports', href: '/dashboard/reports', icon: BarChart3, roles: ['ADMIN', 'MANAGER'] },
+
+  // Phase 4 — Email marketing
+  { name: 'Campaigns', href: '/dashboard/campaigns', icon: Send, roles: ['ADMIN', 'MANAGER'] },
+
+  // Phase AI — Content generator
+  { name: 'AI Content', href: '/dashboard/ai-content', icon: Wand2, roles: ['ADMIN', 'MANAGER'] },
 
   // Phase 9 — Settings & Admin
   { name: 'Booking Requests', href: '/dashboard/booking-requests', icon: Inbox, roles: ['ADMIN'] },

@@ -155,6 +155,113 @@ let BOOKING_REQUESTS = [
   { ID: 4, GUEST_NAME: 'David Okafor', GUEST_EMAIL: 'david.okafor@email.com', GUEST_PHONE: '+234-801-234-5678', ID_TYPE: 'OTHER', ID_NUMBER: 'NG112233', ROOM_TYPE_ID: 4, ROOM_ID: null, CHECK_IN_DATE: '2026-10-25', CHECK_OUT_DATE: '2026-10-27', NUM_GUESTS: 2, TOTAL_PRICE: 1000, SPECIAL_REQUESTS: '', PAYMENT_METHOD: 'CARD', PROMO_CODE: '', STATUS: 'rejected', REJECTION_REASON: 'Room type not available for those dates', NOTES: '', APPROVED_BY: 1, APPROVED_AT: now, CREATED_AT: now, UPDATED_AT: now },
 ]
 
+let CONTENT = [
+  { ID: 1, TITLE: 'Grand Opening of the Rooftop Terrace', TYPE: 'announcement', BODY: '<h2>The rooftop is open</h2><p>After months of renovation, our rooftop terrace is open to all guests — sunset views, light bites and craft cocktails every evening.</p>', FEATURED_IMAGE_URL: null, STATUS: 'published', PUBLISHED_AT: '2026-09-20T10:00:00', CREATED_BY: 1, CREATED_AT: '2026-09-19T16:00:00', UPDATED_AT: '2026-09-20T10:00:00' },
+  { ID: 2, TITLE: 'Altons Hotel Wins 2026 Hospitality Award', TYPE: 'news', BODY: '<p>We are proud to announce that ALTONSHOTEL has been recognized with the 2026 Regional Hospitality Award for guest service excellence.</p><p>Thank you to every guest who shared their feedback — this award belongs to you.</p>', FEATURED_IMAGE_URL: null, STATUS: 'published', PUBLISHED_AT: '2026-09-28T09:00:00', CREATED_BY: 1, CREATED_AT: '2026-09-27T14:00:00', UPDATED_AT: '2026-09-28T09:00:00' },
+  { ID: 3, TITLE: 'Christmas Eve Gala Dinner', TYPE: 'event', BODY: '<h2>Christmas Eve at Altons</h2><p>Join us on December 24 for a five-course gala dinner with live music. Seats are limited — reserve at the front desk.</p>', FEATURED_IMAGE_URL: null, STATUS: 'published', PUBLISHED_AT: '2026-10-01T12:00:00', CREATED_BY: 1, CREATED_AT: '2026-09-30T11:00:00', UPDATED_AT: '2026-10-01T12:00:00' },
+  { ID: 4, TITLE: 'New Executive Suites Now Available', TYPE: 'news', BODY: '<p>Two renovated executive suites on the sixth floor are now available, featuring separate living areas and panoramic city views.</p>', FEATURED_IMAGE_URL: null, STATUS: 'published', PUBLISHED_AT: '2026-10-05T08:30:00', CREATED_BY: 1, CREATED_AT: '2026-10-04T17:00:00', UPDATED_AT: '2026-10-05T08:30:00' },
+  { ID: 5, TITLE: 'Pool Maintenance This Weekend', TYPE: 'announcement', BODY: '<p>The swimming pool will be closed on Saturday and Sunday for scheduled maintenance. We apologise for the inconvenience.</p>', FEATURED_IMAGE_URL: null, STATUS: 'draft', PUBLISHED_AT: null, CREATED_BY: 1, CREATED_AT: '2026-10-07T15:00:00', UPDATED_AT: '2026-10-07T15:00:00' },
+  { ID: 6, TITLE: 'Summer Jazz Nights', TYPE: 'event', BODY: '<h2>Live jazz every Friday</h2><p>From June through August, the lobby lounge hosts live jazz from 20:00. Free for all hotel guests.</p>', FEATURED_IMAGE_URL: null, STATUS: 'published', PUBLISHED_AT: '2026-06-05T18:00:00', CREATED_BY: 1, CREATED_AT: '2026-06-04T10:00:00', UPDATED_AT: '2026-06-05T18:00:00' },
+]
+
+let PROMOTIONS = [
+  { ID: 1, TITLE: 'Autumn Escape 25% Off', DESCRIPTION: 'Stay two nights or more this autumn and save 25% on all room types.', DISCOUNT_PCT: 25, START_DATE: '2026-09-15', END_DATE: '2026-11-30', APPLICABLE_ROOM_TYPES: '1,2,3', STATUS: 'active', CREATED_BY: 1, CREATED_AT: '2026-09-10T09:00:00', UPDATED_AT: '2026-09-15T09:00:00' },
+  { ID: 2, TITLE: 'Early Bird 2027', DESCRIPTION: 'Book your 2027 summer holiday before December 1 and save 15%.', DISCOUNT_PCT: 15, START_DATE: '2026-12-01', END_DATE: '2027-02-28', APPLICABLE_ROOM_TYPES: '1,2,3,4', STATUS: 'active', CREATED_BY: 1, CREATED_AT: '2026-10-01T09:00:00', UPDATED_AT: '2026-10-01T09:00:00' },
+  { ID: 3, TITLE: 'Summer Spectacular 30% Off', DESCRIPTION: 'Our biggest summer sale — 30% off suites and deluxe rooms.', DISCOUNT_PCT: 30, START_DATE: '2026-05-01', END_DATE: '2026-08-31', APPLICABLE_ROOM_TYPES: '2,3', STATUS: 'active', CREATED_BY: 1, CREATED_AT: '2026-04-20T09:00:00', UPDATED_AT: '2026-05-01T09:00:00' },
+  { ID: 4, TITLE: 'Weekend Flash Sale', DESCRIPTION: 'A surprise 10% off for weekend stays — still being finalised.', DISCOUNT_PCT: 10, START_DATE: '2026-10-10', END_DATE: '2026-10-12', APPLICABLE_ROOM_TYPES: '1', STATUS: 'draft', CREATED_BY: 1, CREATED_AT: '2026-10-06T09:00:00', UPDATED_AT: '2026-10-06T09:00:00' },
+]
+
+let EMAIL_TEMPLATES = [
+  { ID: 1, NAME: 'Welcome Email', SUBJECT: 'Welcome to ALTONSHOTEL', BODY: '<h2>Welcome, {{guest_name}}!</h2><p>We are delighted to host you at ALTONSHOTEL. Your check-in is on <strong>{{check_in_date}}</strong> and you have been assigned room <strong>{{room_number}}</strong>.</p><p>If you need anything before your arrival, just reply to this email.</p>', TYPE: 'welcome', PLACEHOLDERS: '["guest_name","room_number","check_in_date"]', IS_SYSTEM: 1, CREATED_BY: 1, CREATED_AT: now, UPDATED_AT: now },
+  { ID: 2, NAME: 'Promotion Offer', SUBJECT: 'Special Offer Just for You', BODY: '<h2>A deal picked for you</h2><p>Enjoy exclusive savings on your next stay at ALTONSHOTEL. Book now and make the most of it.</p><p><a href="https://altonshotel.com/booking">Book now</a></p>', TYPE: 'promotion', PLACEHOLDERS: '["guest_name"]', IS_SYSTEM: 1, CREATED_BY: 1, CREATED_AT: now, UPDATED_AT: now },
+  { ID: 3, NAME: 'Newsletter', SUBJECT: 'Our Latest News & Updates', BODY: '<h2>News from ALTONSHOTEL</h2><p>Here is what is happening at the hotel this month — new amenities, events and seasonal offers.</p><p><a href="https://altonshotel.com/landing">See current offers</a></p>', TYPE: 'newsletter', PLACEHOLDERS: '["guest_name"]', IS_SYSTEM: 1, CREATED_BY: 1, CREATED_AT: now, UPDATED_AT: now },
+  { ID: 4, NAME: 'Check-in Reminder', SUBJECT: 'Your Check-in is Tomorrow', BODY: '<h2>See you soon, {{guest_name}}!</h2><p>This is a friendly reminder that your check-in is tomorrow, <strong>{{check_in_date}}</strong>. Your room will be <strong>{{room_number}}</strong>.</p><p>Check-in starts at 14:00.</p>', TYPE: 'reminder', PLACEHOLDERS: '["guest_name","room_number","check_in_date"]', IS_SYSTEM: 1, CREATED_BY: 1, CREATED_AT: now, UPDATED_AT: now },
+  { ID: 5, NAME: 'Check-out Thank You', SUBJECT: 'Thank you for staying', BODY: '<h2>Thank you, {{guest_name}}!</h2><p>We hope you enjoyed your stay in room <strong>{{room_number}}</strong>. We would love to welcome you back soon.</p>', TYPE: 'welcome', PLACEHOLDERS: '["guest_name","room_number"]', IS_SYSTEM: 1, CREATED_BY: 1, CREATED_AT: now, UPDATED_AT: now },
+  { ID: 6, NAME: 'Feedback Request', SUBJECT: "We'd love your feedback", BODY: '<h2>How did we do, {{guest_name}}?</h2><p>Your opinion matters. Take a minute to tell us about your stay and help us improve.</p><p><a href="https://altonshotel.com/landing">Share your feedback</a></p>', TYPE: 'custom', PLACEHOLDERS: '["guest_name"]', IS_SYSTEM: 1, CREATED_BY: 1, CREATED_AT: now, UPDATED_AT: now },
+]
+
+let EMAIL_CAMPAIGNS = [
+  { ID: 1, TITLE: 'October Newsletter', TEMPLATE_ID: 3, RECIPIENT_TYPE: 'all_guests', RECIPIENT_COUNT: 4, STATUS: 'sent', SCHEDULED_AT: null, SENT_AT: '2026-10-02T09:00:00', SUBJECT_OVERRIDE: null, BODY_OVERRIDE: null, OPEN_COUNT: 3, CLICK_COUNT: 2, CREATED_BY: 1, CREATED_AT: '2026-10-02T08:55:00' },
+  { ID: 2, TITLE: 'Autumn Escape Offer', TEMPLATE_ID: 2, RECIPIENT_TYPE: 'past_guests', RECIPIENT_COUNT: 3, STATUS: 'sent', SCHEDULED_AT: null, SENT_AT: '2026-10-05T14:00:00', SUBJECT_OVERRIDE: 'Autumn Escape — 25% Off Your Next Stay', BODY_OVERRIDE: '<h2>25% off, just for you</h2><p>Book an autumn stay before November 30 and save 25%. <a href="https://altonshotel.com/booking">Claim the offer</a></p>', OPEN_COUNT: 2, CLICK_COUNT: 1, CREATED_BY: 1, CREATED_AT: '2026-10-05T13:50:00' },
+]
+
+let SUBSCRIBERS = [
+  { ID: 1, EMAIL: 'john.doe@email.com', STATUS: 'active', SUBSCRIBED_AT: '2026-09-21T10:00:00', CREATED_AT: '2026-09-21T10:00:00' },
+  { ID: 2, EMAIL: 'maria.g@email.com', STATUS: 'active', SUBSCRIBED_AT: '2026-09-22T11:30:00', CREATED_AT: '2026-09-22T11:30:00' },
+  { ID: 3, EMAIL: 'takeshi.y@email.com', STATUS: 'active', SUBSCRIBED_AT: '2026-09-25T09:15:00', CREATED_AT: '2026-09-25T09:15:00' },
+  { ID: 4, EMAIL: 'sarah.j@email.com', STATUS: 'active', SUBSCRIBED_AT: '2026-09-30T16:45:00', CREATED_AT: '2026-09-30T16:45:00' },
+  { ID: 5, EMAIL: 'news.reader@example.com', STATUS: 'active', SUBSCRIBED_AT: '2026-10-01T08:00:00', CREATED_AT: '2026-10-01T08:00:00' },
+  { ID: 6, EMAIL: 'friend.of.hotel@example.com', STATUS: 'active', SUBSCRIBED_AT: '2026-10-03T19:20:00', CREATED_AT: '2026-10-03T19:20:00' },
+  { ID: 7, EMAIL: 'former.guest@example.com', STATUS: 'active', SUBSCRIBED_AT: '2026-10-04T12:00:00', CREATED_AT: '2026-10-04T12:00:00' },
+  { ID: 8, EMAIL: 'unsubscribed.reader@example.com', STATUS: 'unsubscribed', SUBSCRIBED_AT: '2026-09-10T12:00:00', CREATED_AT: '2026-09-10T12:00:00' },
+]
+
+let EMAIL_TRACKING = [
+  { ID: 1, CAMPAIGN_ID: 1, RECIPIENT_EMAIL: 'john.doe@email.com', EVENT_TYPE: 'open', LINK_URL: null, USER_AGENT: 'Mozilla/5.0', IP_ADDRESS: '127.0.0.1', CREATED_AT: '2026-10-02T09:12:00' },
+  { ID: 2, CAMPAIGN_ID: 1, RECIPIENT_EMAIL: 'maria.g@email.com', EVENT_TYPE: 'open', LINK_URL: null, USER_AGENT: 'Mozilla/5.0', IP_ADDRESS: '127.0.0.1', CREATED_AT: '2026-10-02T09:40:00' },
+  { ID: 3, CAMPAIGN_ID: 1, RECIPIENT_EMAIL: 'maria.g@email.com', EVENT_TYPE: 'click', LINK_URL: 'https://altonshotel.com/landing', USER_AGENT: 'Mozilla/5.0', IP_ADDRESS: '127.0.0.1', CREATED_AT: '2026-10-02T09:41:00' },
+  { ID: 4, CAMPAIGN_ID: 1, RECIPIENT_EMAIL: 'takeshi.y@email.com', EVENT_TYPE: 'open', LINK_URL: null, USER_AGENT: 'Mozilla/5.0', IP_ADDRESS: '127.0.0.1', CREATED_AT: '2026-10-02T10:05:00' },
+  { ID: 5, CAMPAIGN_ID: 1, RECIPIENT_EMAIL: 'takeshi.y@email.com', EVENT_TYPE: 'click', LINK_URL: 'https://altonshotel.com/booking', USER_AGENT: 'Mozilla/5.0', IP_ADDRESS: '127.0.0.1', CREATED_AT: '2026-10-02T10:06:00' },
+  { ID: 6, CAMPAIGN_ID: 2, RECIPIENT_EMAIL: 'john.doe@email.com', EVENT_TYPE: 'open', LINK_URL: null, USER_AGENT: 'Mozilla/5.0', IP_ADDRESS: '127.0.0.1', CREATED_AT: '2026-10-05T14:20:00' },
+  { ID: 7, CAMPAIGN_ID: 2, RECIPIENT_EMAIL: 'john.doe@email.com', EVENT_TYPE: 'click', LINK_URL: 'https://altonshotel.com/booking', USER_AGENT: 'Mozilla/5.0', IP_ADDRESS: '127.0.0.1', CREATED_AT: '2026-10-05T14:21:00' },
+  { ID: 8, CAMPAIGN_ID: 2, RECIPIENT_EMAIL: 'sarah.j@email.com', EVENT_TYPE: 'open', LINK_URL: null, USER_AGENT: 'Mozilla/5.0', IP_ADDRESS: '127.0.0.1', CREATED_AT: '2026-10-05T15:02:00' },
+]
+
+// --- AI content generator (Phase: AI Content) ---
+let AI_GENERATED_CONTENT: {
+  ID: number
+  TITLE: string
+  TYPE: string
+  ADMIN_PROMPT: string
+  GENERATED_CONTENT: string
+  FLYER_IMAGE_URL: string | null
+  FLYER_DATA: string | null
+  STATUS: string
+  BRAND_GUIDELINES: string | null
+  CREATED_BY: number | null
+  CREATED_AT: string
+  UPDATED_AT: string
+  APPROVED_BY: number | null
+  APPROVED_AT: string | null
+}[] = [
+  { ID: 1, TITLE: 'Autumn Escape Flyer', TYPE: 'flyer', ADMIN_PROMPT: 'Promote our Autumn Escape offer with 25% off stays of two nights or more until November 30.', GENERATED_CONTENT: '{"headline":"Autumn Escape","subtitle":"save 25% on stays of 2 nights or more","details":"Book before November 30 and unwind in comfort. Suites, deluxe rooms and city views are waiting.","cta_text":"Book Your Escape","accent_color":"#c9a227"}', FLYER_IMAGE_URL: null, FLYER_DATA: '<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350"><rect width="1080" height="1350" fill="#0d1b2a"/><rect y="1190" width="1080" height="160" fill="#c9a227"/><text x="540" y="300" font-family="Georgia, serif" font-size="58" fill="#c9a227" text-anchor="middle" letter-spacing="6">ALTONSHOTEL</text><text x="540" y="520" font-family="Georgia, serif" font-size="96" fill="#f5f0e6" text-anchor="middle">Autumn Escape</text><text x="540" y="600" font-family="Arial, sans-serif" font-size="40" fill="#f5f0e6" text-anchor="middle">save 25% on stays of 2 nights or more</text><text x="540" y="700" font-family="Arial, sans-serif" font-size="30" fill="#e0dccf" text-anchor="middle">Book before November 30 and unwind in comfort.</text><text x="540" y="1240" font-family="Arial, sans-serif" font-size="36" fill="#0d1b2a" text-anchor="middle" font-weight="bold">BOOK YOUR ESCAPE</text></svg>', STATUS: 'approved', BRAND_GUIDELINES: 'Elegant luxury, deep navy and gold accents, serif headlines.', CREATED_BY: 1, CREATED_AT: '2026-10-03T10:00:00', UPDATED_AT: '2026-10-03T10:05:00', APPROVED_BY: 1, APPROVED_AT: '2026-10-03T10:05:00' },
+  { ID: 2, TITLE: 'October Newsletter', TYPE: 'newsletter', ADMIN_PROMPT: 'Write our October newsletter: rooftop terrace now open, new executive suites, and the Autumn Escape offer.', GENERATED_CONTENT: '{"subject":"News from ALTONSHOTEL — October","preheader":"Rooftop terraces, new suites and an autumn offer.","headline":"Your October update","body_html":"<h2>The rooftop is open</h2><p>Sunset views, light bites and craft cocktails are now served on our new rooftop terrace — free for guests.</p><h2>New executive suites</h2><p>Two renovated suites on the sixth floor await, with separate living areas and panoramic views.</p><h2>Autumn Escape</h2><p>Save 25% on stays of two nights or more, booked before November 30.</p><p><a href=\\"https://altonshotel.com/booking\\">Book now</a></p>","cta_label":"Book now","cta_url":"https://altonshotel.com/booking"}', FLYER_IMAGE_URL: null, FLYER_DATA: null, STATUS: 'published', BRAND_GUIDELINES: 'Elegant luxury, deep navy and gold accents.', CREATED_BY: 1, CREATED_AT: '2026-10-01T09:00:00', UPDATED_AT: '2026-10-02T09:00:00', APPROVED_BY: 1, APPROVED_AT: '2026-10-01T16:00:00' },
+  { ID: 3, TITLE: 'Rooftop Terrace Reel', TYPE: 'instagram_post', ADMIN_PROMPT: 'Create an Instagram post announcing the rooftop terrace opening with a golden-hour vibe.', GENERATED_CONTENT: '{"caption":"Golden hour has a new address. Our rooftop terrace is officially open — sunset views, light bites and craft cocktails, every evening for our guests. Come up and see the city in a different light. \\u2728","hashtags":"#ALTONSHOTEL #RooftopBar #CityViews #HotelLife"}', FLYER_IMAGE_URL: null, FLYER_DATA: null, STATUS: 'approved', BRAND_GUIDELINES: 'Elegant luxury, deep navy and gold accents.', CREATED_BY: 1, CREATED_AT: '2026-10-04T11:00:00', UPDATED_AT: '2026-10-04T11:02:00', APPROVED_BY: 1, APPROVED_AT: '2026-10-04T11:02:00' },
+]
+
+let AI_CONTENT_VERSIONS: {
+  ID: number
+  CONTENT_ID: number
+  VERSION_NUMBER: number
+  GENERATED_CONTENT: string
+  REASON: string
+  GENERATED_BY: number | null
+  GENERATED_AT: string
+}[] = [
+  { ID: 1, CONTENT_ID: 1, VERSION_NUMBER: 1, GENERATED_CONTENT: '{"headline":"Autumn Escape","subtitle":"save 25% on stays of 2 nights or more","details":"Book before November 30 and unwind in comfort. Suites, deluxe rooms and city views are waiting.","cta_text":"Book Your Escape","accent_color":"#c9a227"}', REASON: 'Initial generation', GENERATED_BY: 1, GENERATED_AT: '2026-10-03T10:00:00' },
+  { ID: 2, CONTENT_ID: 2, VERSION_NUMBER: 1, GENERATED_CONTENT: '{"subject":"News from ALTONSHOTEL — October","preheader":"Rooftop terraces, new suites and an autumn offer.","headline":"Your October update","body_html":"<h2>The rooftop is open</h2><p>Sunset views, light bites and craft cocktails are now served on our new rooftop terrace — free for guests.</p><h2>New executive suites</h2><p>Two renovated suites on the sixth floor await, with separate living areas and panoramic views.</p><h2>Autumn Escape</h2><p>Save 25% on stays of two nights or more, booked before November 30.</p><p><a href=\\"https://altonshotel.com/booking\\">Book now</a></p>","cta_label":"Book now","cta_url":"https://altonshotel.com/booking"}', REASON: 'Initial generation', GENERATED_BY: 1, GENERATED_AT: '2026-10-01T09:00:00' },
+  { ID: 3, CONTENT_ID: 3, VERSION_NUMBER: 1, GENERATED_CONTENT: '{"caption":"Golden hour has a new address. Our rooftop terrace is officially open — sunset views, light bites and craft cocktails, every evening for our guests. Come up and see the city in a different light. \\u2728","hashtags":"#ALTONSHOTEL #RooftopBar #CityViews #HotelLife"}', REASON: 'Initial generation', GENERATED_BY: 1, GENERATED_AT: '2026-10-04T11:00:00' },
+]
+
+let AI_CONTENT_DISTRIBUTIONS: {
+  ID: number
+  CONTENT_ID: number
+  CHANNEL: string
+  RECIPIENT_TYPE: string | null
+  RECIPIENT_COUNT: number
+  STATUS: string
+  SCHEDULED_AT: string | null
+  SENT_AT: string | null
+  ENGAGEMENT_COUNT: number
+  CAMPAIGN_ID: number | null
+  CREATED_BY: number | null
+  CREATED_AT: string
+}[] = [
+  { ID: 1, CONTENT_ID: 2, CHANNEL: 'newsletter', RECIPIENT_TYPE: 'newsletter_subscribers', RECIPIENT_COUNT: 6, STATUS: 'sent', SCHEDULED_AT: '2026-10-02T09:00:00', SENT_AT: '2026-10-02T09:00:12', ENGAGEMENT_COUNT: 3, CAMPAIGN_ID: 1, CREATED_BY: 1, CREATED_AT: '2026-10-01T16:30:00' },
+  { ID: 2, CONTENT_ID: 3, CHANNEL: 'instagram', RECIPIENT_TYPE: null, RECIPIENT_COUNT: 1, STATUS: 'sent', SCHEDULED_AT: null, SENT_AT: '2026-10-04T18:00:20', ENGAGEMENT_COUNT: 12, CAMPAIGN_ID: null, CREATED_BY: 1, CREATED_AT: '2026-10-04T11:10:00' },
+  { ID: 3, CONTENT_ID: 1, CHANNEL: 'whatsapp', RECIPIENT_TYPE: null, RECIPIENT_COUNT: 0, STATUS: 'manual', SCHEDULED_AT: null, SENT_AT: null, ENGAGEMENT_COUNT: 0, CAMPAIGN_ID: null, CREATED_BY: 1, CREATED_AT: '2026-10-03T10:10:00' },
+]
+
 // --- Mock Connection ---
 class MockConnection {
   async execute(sql: string, binds: Record<string, unknown> = {}) {
@@ -203,6 +310,15 @@ class MockConnection {
     BOOKING_REQUESTS: ['ID', 'GUEST_NAME', 'GUEST_EMAIL', 'GUEST_PHONE', 'ID_TYPE', 'ID_NUMBER', 'ROOM_TYPE_ID', 'ROOM_ID', 'CHECK_IN_DATE', 'CHECK_OUT_DATE', 'NUM_GUESTS', 'TOTAL_PRICE', 'SPECIAL_REQUESTS', 'PAYMENT_METHOD', 'PROMO_CODE', 'STATUS', 'REJECTION_REASON', 'NOTES', 'APPROVED_BY', 'APPROVED_AT', 'CREATED_AT', 'UPDATED_AT'],
     SYSTEM_SETTINGS: ['SETTING_KEY', 'SETTING_VALUE', 'DESCRIPTION', 'UPDATED_AT', 'UPDATED_BY'],
     AUDIT_LOG: ['ID', 'ACTION', 'ENTITY_TYPE', 'ENTITY_ID', 'PERFORMED_BY', 'PERFORMED_BY_ID', 'PERFORMED_AT', 'DETAILS'],
+    CONTENT: ['ID', 'TITLE', 'TYPE', 'BODY', 'FEATURED_IMAGE_URL', 'STATUS', 'PUBLISHED_AT', 'CREATED_BY', 'CREATED_AT', 'UPDATED_AT'],
+    PROMOTIONS: ['ID', 'TITLE', 'DESCRIPTION', 'DISCOUNT_PCT', 'START_DATE', 'END_DATE', 'APPLICABLE_ROOM_TYPES', 'STATUS', 'CREATED_BY', 'CREATED_AT', 'UPDATED_AT'],
+    EMAIL_TEMPLATES: ['ID', 'NAME', 'SUBJECT', 'BODY', 'TYPE', 'PLACEHOLDERS', 'IS_SYSTEM', 'CREATED_BY', 'CREATED_AT', 'UPDATED_AT'],
+    EMAIL_CAMPAIGNS: ['ID', 'TITLE', 'TEMPLATE_ID', 'RECIPIENT_TYPE', 'RECIPIENT_COUNT', 'STATUS', 'SCHEDULED_AT', 'SENT_AT', 'SUBJECT_OVERRIDE', 'BODY_OVERRIDE', 'OPEN_COUNT', 'CLICK_COUNT', 'CREATED_BY', 'CREATED_AT'],
+    SUBSCRIBERS: ['ID', 'EMAIL', 'STATUS', 'SUBSCRIBED_AT', 'CREATED_AT'],
+    EMAIL_TRACKING: ['ID', 'CAMPAIGN_ID', 'RECIPIENT_EMAIL', 'EVENT_TYPE', 'LINK_URL', 'USER_AGENT', 'IP_ADDRESS', 'CREATED_AT'],
+    AI_GENERATED_CONTENT: ['ID', 'TITLE', 'TYPE', 'ADMIN_PROMPT', 'GENERATED_CONTENT', 'FLYER_IMAGE_URL', 'FLYER_DATA', 'STATUS', 'BRAND_GUIDELINES', 'CREATED_BY', 'CREATED_AT', 'UPDATED_AT', 'APPROVED_BY', 'APPROVED_AT'],
+    AI_CONTENT_VERSIONS: ['ID', 'CONTENT_ID', 'VERSION_NUMBER', 'GENERATED_CONTENT', 'REASON', 'GENERATED_BY', 'GENERATED_AT'],
+    AI_CONTENT_DISTRIBUTIONS: ['ID', 'CONTENT_ID', 'CHANNEL', 'RECIPIENT_TYPE', 'RECIPIENT_COUNT', 'STATUS', 'SCHEDULED_AT', 'SENT_AT', 'ENGAGEMENT_COUNT', 'CAMPAIGN_ID', 'CREATED_BY', 'CREATED_AT'],
   }
 
   private _projectColumns(sql: string, rows: unknown[][]): unknown[][] {
@@ -265,6 +381,10 @@ class MockConnection {
         rows = [[filtered.length]]
       } else if (upper.includes('FROM BOOKING_REQUESTS')) {
         rows = [[this._filterBookingRequests(sql, binds).length]]
+      } else if (upper.includes('FROM CONTENT')) {
+        rows = [[this._filterContent(binds).length]]
+      } else if (upper.includes('FROM PROMOTIONS')) {
+        rows = [[this._filterPromotions(binds).length]]
       } else if (upper.includes('FROM BOOKINGS')) {
         let filtered = [...BOOKINGS]
         if (binds.status) filtered = filtered.filter(b => b.STATUS === binds.status)
@@ -484,8 +604,66 @@ class MockConnection {
           return [a.ID, a.ACTION, a.ENTITY_TYPE, a.ENTITY_ID, a.PERFORMED_BY_ID, a.PERFORMED_AT, a.DETAILS, user ? user.FULL_NAME : null]
         })
       } else {
-        rows = filtered.map(a => [a.ID, a.ACTION, a.ENTITY_TYPE, a.ENTITY_ID, a.PERFORMED_BY_ID, a.PERFORMED_AT, a.DETAILS])
+        rows = filtered.map(a => [a.ID, a.ACTION, a.ENTITY_TYPE, a.ENTITY_ID, a.PERFORMED_BY, a.PERFORMED_AT, a.DETAILS])
       }
+    } else if (upper.includes('FROM CONTENT')) {
+      const filtered = this._filterContent(binds)
+      rows = filtered.map(c => [c.ID, c.TITLE, c.TYPE, c.BODY, c.FEATURED_IMAGE_URL, c.STATUS, c.PUBLISHED_AT, c.CREATED_BY, c.CREATED_AT, c.UPDATED_AT])
+    } else if (upper.includes('FROM PROMOTIONS')) {
+      const filtered = this._filterPromotions(binds)
+      rows = filtered.map(p => [p.ID, p.TITLE, p.DESCRIPTION, p.DISCOUNT_PCT, p.START_DATE, p.END_DATE, p.APPLICABLE_ROOM_TYPES, p.STATUS, p.CREATED_BY, p.CREATED_AT, p.UPDATED_AT])
+    } else if (upper.includes('FROM EMAIL_TEMPLATES')) {
+      let filtered = [...EMAIL_TEMPLATES]
+      const boundId = binds.id || binds.template_id || binds.p_id
+      if (boundId) filtered = filtered.filter(t => t.ID === Number(boundId))
+      if (binds.type) filtered = filtered.filter(t => t.TYPE === binds.type)
+      rows = filtered.map(t => [t.ID, t.NAME, t.SUBJECT, t.BODY, t.TYPE, t.PLACEHOLDERS, t.IS_SYSTEM, t.CREATED_BY, t.CREATED_AT, t.UPDATED_AT])
+    } else if (upper.includes('FROM EMAIL_CAMPAIGNS')) {
+      let filtered = [...EMAIL_CAMPAIGNS]
+      const boundId = binds.id || binds.campaign_id || binds.p_id
+      if (boundId) filtered = filtered.filter(c => c.ID === Number(boundId))
+      if (binds.status) filtered = filtered.filter(c => c.STATUS === binds.status)
+      rows = filtered.map(c => [c.ID, c.TITLE, c.TEMPLATE_ID, c.RECIPIENT_TYPE, c.RECIPIENT_COUNT, c.STATUS, c.SCHEDULED_AT, c.SENT_AT, c.SUBJECT_OVERRIDE, c.BODY_OVERRIDE, c.OPEN_COUNT, c.CLICK_COUNT, c.CREATED_BY, c.CREATED_AT])
+    } else if (upper.includes('FROM SUBSCRIBERS')) {
+      let filtered = [...SUBSCRIBERS]
+      const boundId = binds.id || binds.p_id
+      if (boundId) filtered = filtered.filter(s => s.ID === Number(boundId))
+      if (binds.email) filtered = filtered.filter(s => s.EMAIL === String(binds.email).toLowerCase())
+      if (binds.status) filtered = filtered.filter(s => s.STATUS === binds.status)
+      rows = filtered.map(s => [s.ID, s.EMAIL, s.STATUS, s.SUBSCRIBED_AT, s.CREATED_AT])
+    } else if (upper.includes('FROM EMAIL_TRACKING')) {
+      let filtered = [...EMAIL_TRACKING]
+      const boundCampaign = binds.campaign_id || binds.p_campaign_id
+      if (boundCampaign) filtered = filtered.filter(t => t.CAMPAIGN_ID === Number(boundCampaign))
+      if (binds.recipient_email) filtered = filtered.filter(t => t.RECIPIENT_EMAIL === String(binds.recipient_email).toLowerCase())
+      if (binds.event_type) filtered = filtered.filter(t => t.EVENT_TYPE === binds.event_type)
+      rows = filtered.map(t => [t.ID, t.CAMPAIGN_ID, t.RECIPIENT_EMAIL, t.EVENT_TYPE, t.LINK_URL, t.USER_AGENT, t.IP_ADDRESS, t.CREATED_AT])
+    } else if (upper.includes('FROM AI_GENERATED_CONTENT')) {
+      let filtered = [...AI_GENERATED_CONTENT]
+      const boundId = binds.id || binds.content_id || binds.p_id
+      if (boundId) filtered = filtered.filter(c => c.ID === Number(boundId))
+      if (binds.status) filtered = filtered.filter(c => c.STATUS === binds.status)
+      if (binds.type) filtered = filtered.filter(c => c.TYPE === binds.type)
+      const searchVal = binds.search
+      if (searchVal) {
+        const q = String(searchVal).replace(/%/g, '').toUpperCase()
+        filtered = filtered.filter(c => c.TITLE.toUpperCase().includes(q))
+      }
+      rows = filtered.map(c => [c.ID, c.TITLE, c.TYPE, c.ADMIN_PROMPT, c.GENERATED_CONTENT, c.FLYER_IMAGE_URL, c.FLYER_DATA, c.STATUS, c.BRAND_GUIDELINES, c.CREATED_BY, c.CREATED_AT, c.UPDATED_AT, c.APPROVED_BY, c.APPROVED_AT])
+    } else if (upper.includes('FROM AI_CONTENT_VERSIONS')) {
+      let filtered = [...AI_CONTENT_VERSIONS]
+      const boundId = binds.id || binds.version_id || binds.p_id
+      if (boundId) filtered = filtered.filter(v => v.ID === Number(boundId))
+      if (binds.content_id) filtered = filtered.filter(v => v.CONTENT_ID === Number(binds.content_id))
+      rows = filtered.map(v => [v.ID, v.CONTENT_ID, v.VERSION_NUMBER, v.GENERATED_CONTENT, v.REASON, v.GENERATED_BY, v.GENERATED_AT])
+    } else if (upper.includes('FROM AI_CONTENT_DISTRIBUTIONS')) {
+      let filtered = [...AI_CONTENT_DISTRIBUTIONS]
+      const boundId = binds.id || binds.distribution_id || binds.p_id
+      if (boundId) filtered = filtered.filter(d => d.ID === Number(boundId))
+      if (binds.content_id) filtered = filtered.filter(d => d.CONTENT_ID === Number(binds.content_id))
+      if (binds.channel) filtered = filtered.filter(d => d.CHANNEL === binds.channel)
+      if (binds.status) filtered = filtered.filter(d => d.STATUS === binds.status)
+      rows = filtered.map(d => [d.ID, d.CONTENT_ID, d.CHANNEL, d.RECIPIENT_TYPE, d.RECIPIENT_COUNT, d.STATUS, d.SCHEDULED_AT, d.SENT_AT, d.ENGAGEMENT_COUNT, d.CAMPAIGN_ID, d.CREATED_BY, d.CREATED_AT])
     }
 
     // Generic OFFSET/FETCH pagination
@@ -528,6 +706,33 @@ class MockConnection {
         else cmp = a.ID - b.ID
         return dir === 'DESC' ? -cmp : cmp
       })
+    }
+    return filtered
+  }
+
+  private _filterContent(binds: Record<string, unknown>) {
+    let filtered = [...CONTENT]
+    const boundId = binds.id || binds.p_id
+    if (boundId) filtered = filtered.filter(c => c.ID === Number(boundId))
+    if (binds.status) filtered = filtered.filter(c => c.STATUS === binds.status)
+    if (binds.type) filtered = filtered.filter(c => c.TYPE === binds.type)
+    const searchVal = binds.search
+    if (searchVal) {
+      const q = String(searchVal).replace(/%/g, '').toUpperCase()
+      filtered = filtered.filter(c => c.TITLE.toUpperCase().includes(q))
+    }
+    return filtered
+  }
+
+  private _filterPromotions(binds: Record<string, unknown>) {
+    let filtered = [...PROMOTIONS]
+    const boundId = binds.id || binds.p_id
+    if (boundId) filtered = filtered.filter(p => p.ID === Number(boundId))
+    if (binds.status) filtered = filtered.filter(p => p.STATUS === binds.status)
+    const searchVal = binds.search
+    if (searchVal) {
+      const q = String(searchVal).replace(/%/g, '').toUpperCase()
+      filtered = filtered.filter(p => p.TITLE.toUpperCase().includes(q))
     }
     return filtered
   }
@@ -599,6 +804,44 @@ class MockConnection {
       const performedBy = Number(binds.performed_by || 1)
       const user = USERS.find(u => u.USER_ID === performedBy)
       AUDIT_LOG.push({ ID: id, ACTION: String(binds.action || ''), ENTITY_TYPE: String(binds.entity_type || ''), ENTITY_ID: binds.entity_id ? Number(binds.entity_id) : null, PERFORMED_BY: user ? user.USERNAME : 'SYSTEM', PERFORMED_BY_ID: performedBy, PERFORMED_AT: now, DETAILS: String(binds.details || '') })
+      return { rows: [[id]], rowsAffected: 1 }
+    }
+    if (upper.includes('INTO CONTENT')) {
+      const publishedAt = binds.published_at ? String(binds.published_at) : (String(binds.status || 'draft') === 'published' ? now : null)
+      CONTENT.push({ ID: id, TITLE: String(binds.title || ''), TYPE: String(binds.type || 'news'), BODY: String(binds.body || ''), FEATURED_IMAGE_URL: binds.featured_image_url ? String(binds.featured_image_url) : null, STATUS: String(binds.status || 'draft'), PUBLISHED_AT: publishedAt, CREATED_BY: binds.created_by ? Number(binds.created_by) : null, CREATED_AT: now, UPDATED_AT: now })
+      return { rows: [[id]], rowsAffected: 1 }
+    }
+    if (upper.includes('INTO PROMOTIONS')) {
+      PROMOTIONS.push({ ID: id, TITLE: String(binds.title || ''), DESCRIPTION: String(binds.description || ''), DISCOUNT_PCT: Number(binds.discount_pct || 0), START_DATE: String(binds.start_date || ''), END_DATE: String(binds.end_date || ''), APPLICABLE_ROOM_TYPES: String(binds.applicable_room_types || ''), STATUS: String(binds.status || 'draft'), CREATED_BY: binds.created_by ? Number(binds.created_by) : null, CREATED_AT: now, UPDATED_AT: now })
+      return { rows: [[id]], rowsAffected: 1 }
+    }
+    if (upper.includes('INTO EMAIL_TEMPLATES')) {
+      EMAIL_TEMPLATES.push({ ID: id, NAME: String(binds.name || ''), SUBJECT: String(binds.subject || ''), BODY: String(binds.body || ''), TYPE: String(binds.type || 'custom'), PLACEHOLDERS: String(binds.placeholders || '[]'), IS_SYSTEM: 0, CREATED_BY: binds.created_by ? Number(binds.created_by) : null, CREATED_AT: now, UPDATED_AT: now })
+      return { rows: [[id]], rowsAffected: 1 }
+    }
+    if (upper.includes('INTO EMAIL_CAMPAIGNS')) {
+      EMAIL_CAMPAIGNS.push({ ID: id, TITLE: String(binds.title || ''), TEMPLATE_ID: binds.template_id ? Number(binds.template_id) : null, RECIPIENT_TYPE: String(binds.recipient_type || 'all_guests'), RECIPIENT_COUNT: Number(binds.recipient_count || 0), STATUS: String(binds.status || 'draft'), SCHEDULED_AT: binds.scheduled_at ? String(binds.scheduled_at) : null, SENT_AT: null, SUBJECT_OVERRIDE: binds.subject_override ? String(binds.subject_override) : null, BODY_OVERRIDE: binds.body_override ? String(binds.body_override) : null, OPEN_COUNT: 0, CLICK_COUNT: 0, CREATED_BY: binds.created_by ? Number(binds.created_by) : null, CREATED_AT: now })
+      return { rows: [[id]], rowsAffected: 1 }
+    }
+    if (upper.includes('INTO SUBSCRIBERS')) {
+      SUBSCRIBERS.push({ ID: id, EMAIL: String(binds.email || '').toLowerCase(), STATUS: String(binds.status || 'active'), SUBSCRIBED_AT: now, CREATED_AT: now })
+      return { rows: [[id]], rowsAffected: 1 }
+    }
+    if (upper.includes('INTO EMAIL_TRACKING')) {
+      const litEvent = upper.includes("'CLICK'") ? 'click' : upper.includes("'OPEN'") ? 'open' : 'open'
+      EMAIL_TRACKING.push({ ID: id, CAMPAIGN_ID: Number(binds.campaign_id || 0), RECIPIENT_EMAIL: String(binds.recipient_email || '').toLowerCase(), EVENT_TYPE: String(binds.event_type || litEvent), LINK_URL: binds.link_url ? String(binds.link_url) : null, USER_AGENT: binds.user_agent ? String(binds.user_agent) : null, IP_ADDRESS: binds.ip_address ? String(binds.ip_address) : null, CREATED_AT: now })
+      return { rows: [[id]], rowsAffected: 1 }
+    }
+    if (upper.includes('INTO AI_GENERATED_CONTENT')) {
+      AI_GENERATED_CONTENT.push({ ID: id, TITLE: String(binds.title || ''), TYPE: String(binds.type || ''), ADMIN_PROMPT: String(binds.admin_prompt || ''), GENERATED_CONTENT: String(binds.generated_content || ''), FLYER_IMAGE_URL: binds.flyer_image_url ? String(binds.flyer_image_url) : null, FLYER_DATA: binds.flyer_data ? String(binds.flyer_data) : null, STATUS: String(binds.status || 'draft'), BRAND_GUIDELINES: binds.brand_guidelines ? String(binds.brand_guidelines) : null, CREATED_BY: binds.created_by ? Number(binds.created_by) : null, CREATED_AT: now, UPDATED_AT: now, APPROVED_BY: null, APPROVED_AT: null })
+      return { rows: [[id]], rowsAffected: 1 }
+    }
+    if (upper.includes('INTO AI_CONTENT_VERSIONS')) {
+      AI_CONTENT_VERSIONS.push({ ID: id, CONTENT_ID: Number(binds.content_id || 0), VERSION_NUMBER: Number(binds.version_number || 1), GENERATED_CONTENT: String(binds.generated_content || ''), REASON: String(binds.reason || ''), GENERATED_BY: binds.generated_by ? Number(binds.generated_by) : null, GENERATED_AT: now })
+      return { rows: [[id]], rowsAffected: 1 }
+    }
+    if (upper.includes('INTO AI_CONTENT_DISTRIBUTIONS')) {
+      AI_CONTENT_DISTRIBUTIONS.push({ ID: id, CONTENT_ID: Number(binds.content_id || 0), CHANNEL: String(binds.channel || ''), RECIPIENT_TYPE: binds.recipient_type ? String(binds.recipient_type) : null, RECIPIENT_COUNT: Number(binds.recipient_count || 0), STATUS: String(binds.status || 'pending'), SCHEDULED_AT: binds.scheduled_at ? String(binds.scheduled_at) : null, SENT_AT: binds.sent_at ? String(binds.sent_at) : null, ENGAGEMENT_COUNT: Number(binds.engagement_count || 0), CAMPAIGN_ID: binds.campaign_id ? Number(binds.campaign_id) : null, CREATED_BY: binds.created_by ? Number(binds.created_by) : null, CREATED_AT: now })
       return { rows: [[id]], rowsAffected: 1 }
     }
 
@@ -779,10 +1022,189 @@ class MockConnection {
       return { rowsAffected: 1 }
     }
 
+    if (upper.includes('UPDATE CONTENT')) {
+      const boundId = binds.id || binds.p_id
+      const target = boundId ? CONTENT.find(c => c.ID === Number(boundId)) : null
+      if (target) {
+        if (binds.title !== undefined) target.TITLE = String(binds.title)
+        if (binds.type !== undefined) target.TYPE = String(binds.type)
+        if (binds.body !== undefined) target.BODY = String(binds.body)
+        if (binds.featured_image_url !== undefined) target.FEATURED_IMAGE_URL = binds.featured_image_url === null ? null : String(binds.featured_image_url)
+        if (binds.status !== undefined) {
+          target.STATUS = String(binds.status)
+        } else {
+          const lit = upper.match(/SET\s+STATUS\s*=\s*'(\w+)'/)
+          if (lit) target.STATUS = lit[1].toLowerCase()
+        }
+        if (target.STATUS === 'published' && !target.PUBLISHED_AT) target.PUBLISHED_AT = now
+        target.UPDATED_AT = now
+      }
+      return { rowsAffected: target ? 1 : 0 }
+    }
+    if (upper.includes('UPDATE PROMOTIONS')) {
+      const boundId = binds.id || binds.p_id
+      const target = boundId ? PROMOTIONS.find(p => p.ID === Number(boundId)) : null
+      if (target) {
+        if (binds.title !== undefined) target.TITLE = String(binds.title)
+        if (binds.description !== undefined) target.DESCRIPTION = String(binds.description)
+        if (binds.discount_pct !== undefined) target.DISCOUNT_PCT = Number(binds.discount_pct)
+        if (binds.start_date !== undefined) target.START_DATE = String(binds.start_date)
+        if (binds.end_date !== undefined) target.END_DATE = String(binds.end_date)
+        if (binds.applicable_room_types !== undefined) target.APPLICABLE_ROOM_TYPES = String(binds.applicable_room_types)
+        if (binds.status !== undefined) {
+          target.STATUS = String(binds.status)
+        } else {
+          const lit = upper.match(/SET\s+STATUS\s*=\s*'(\w+)'/)
+          if (lit) target.STATUS = lit[1].toLowerCase()
+        }
+        target.UPDATED_AT = now
+      }
+      return { rowsAffected: target ? 1 : 0 }
+    }
+    if (upper.includes('UPDATE EMAIL_TEMPLATES')) {
+      const boundId = binds.id || binds.p_id
+      const target = boundId ? EMAIL_TEMPLATES.find(t => t.ID === Number(boundId)) : null
+      if (target) {
+        if (binds.name !== undefined) target.NAME = String(binds.name)
+        if (binds.subject !== undefined) target.SUBJECT = String(binds.subject)
+        if (binds.body !== undefined) target.BODY = String(binds.body)
+        if (binds.type !== undefined) target.TYPE = String(binds.type)
+        if (binds.placeholders !== undefined) target.PLACEHOLDERS = String(binds.placeholders)
+        target.UPDATED_AT = now
+      }
+      return { rowsAffected: target ? 1 : 0 }
+    }
+    if (upper.includes('UPDATE EMAIL_CAMPAIGNS')) {
+      const boundId = binds.id || binds.campaign_id || binds.p_id
+      const target = boundId ? EMAIL_CAMPAIGNS.find(c => c.ID === Number(boundId)) : null
+      if (target) {
+        if (binds.status !== undefined) {
+          target.STATUS = String(binds.status)
+        } else {
+          const lit = upper.match(/SET\s+STATUS\s*=\s*'(\w+)'/)
+          if (lit) target.STATUS = lit[1].toLowerCase()
+        }
+        if (target.STATUS === 'sent' && !target.SENT_AT) target.SENT_AT = now
+        if (binds.scheduled_at !== undefined) target.SCHEDULED_AT = binds.scheduled_at === null ? null : String(binds.scheduled_at)
+        if (binds.recipient_count !== undefined) target.RECIPIENT_COUNT = Number(binds.recipient_count)
+        if (binds.subject_override !== undefined) target.SUBJECT_OVERRIDE = binds.subject_override === null ? null : String(binds.subject_override)
+        if (binds.body_override !== undefined) target.BODY_OVERRIDE = binds.body_override === null ? null : String(binds.body_override)
+        if (binds.open_count !== undefined) target.OPEN_COUNT = Number(binds.open_count)
+        if (binds.click_count !== undefined) target.CLICK_COUNT = Number(binds.click_count)
+      }
+      return { rowsAffected: target ? 1 : 0 }
+    }
+    if (upper.includes('UPDATE SUBSCRIBERS')) {
+      if (binds.email) {
+        const target = SUBSCRIBERS.find(s => s.EMAIL === String(binds.email).toLowerCase())
+        if (target) {
+          if (binds.status) {
+            target.STATUS = String(binds.status)
+          } else {
+            const lit = upper.match(/SET\s+STATUS\s*=\s*'(\w+)'/)
+            if (lit) target.STATUS = lit[1].toLowerCase()
+          }
+        }
+      }
+      return { rowsAffected: 1 }
+    }
+    if (upper.includes('UPDATE AI_GENERATED_CONTENT')) {
+      const boundId = binds.id || binds.content_id || binds.p_id
+      const target = boundId ? AI_GENERATED_CONTENT.find(c => c.ID === Number(boundId)) : null
+      if (target) {
+        if (binds.title !== undefined) target.TITLE = String(binds.title)
+        if (binds.type !== undefined) target.TYPE = String(binds.type)
+        if (binds.admin_prompt !== undefined) target.ADMIN_PROMPT = String(binds.admin_prompt)
+        if (binds.generated_content !== undefined) target.GENERATED_CONTENT = String(binds.generated_content)
+        if (binds.flyer_image_url !== undefined) target.FLYER_IMAGE_URL = binds.flyer_image_url === null ? null : String(binds.flyer_image_url)
+        if (binds.flyer_data !== undefined) target.FLYER_DATA = binds.flyer_data === null ? null : String(binds.flyer_data)
+        if (binds.brand_guidelines !== undefined) target.BRAND_GUIDELINES = binds.brand_guidelines === null ? null : String(binds.brand_guidelines)
+        if (binds.status !== undefined) {
+          target.STATUS = String(binds.status)
+        } else {
+          const lit = upper.match(/SET\s+STATUS\s*=\s*'(\w+)'/)
+          if (lit) target.STATUS = lit[1].toLowerCase()
+        }
+        if (binds.approved_by !== undefined) target.APPROVED_BY = binds.approved_by === null ? null : Number(binds.approved_by)
+        if (binds.approved_at !== undefined) {
+          target.APPROVED_AT = binds.approved_at === null ? null : String(binds.approved_at)
+        } else if (target.STATUS === 'approved' && target.APPROVED_BY && !target.APPROVED_AT) {
+          target.APPROVED_AT = now
+        }
+        target.UPDATED_AT = now
+      }
+      return { rowsAffected: target ? 1 : 0 }
+    }
+    if (upper.includes('UPDATE AI_CONTENT_DISTRIBUTIONS')) {
+      const boundId = binds.id || binds.distribution_id || binds.p_id
+      const target = boundId ? AI_CONTENT_DISTRIBUTIONS.find(d => d.ID === Number(boundId)) : null
+      if (target) {
+        if (binds.status !== undefined) {
+          target.STATUS = String(binds.status)
+        } else {
+          const lit = upper.match(/SET\s+STATUS\s*=\s*'(\w+)'/)
+          if (lit) target.STATUS = lit[1].toLowerCase()
+        }
+        if (target.STATUS === 'sent' && !target.SENT_AT) target.SENT_AT = now
+        if (binds.sent_at !== undefined) target.SENT_AT = binds.sent_at === null ? null : String(binds.sent_at)
+        if (binds.scheduled_at !== undefined) target.SCHEDULED_AT = binds.scheduled_at === null ? null : String(binds.scheduled_at)
+        if (binds.recipient_count !== undefined) target.RECIPIENT_COUNT = Number(binds.recipient_count)
+        if (binds.engagement_count !== undefined) target.ENGAGEMENT_COUNT = Number(binds.engagement_count)
+        if (binds.campaign_id !== undefined) target.CAMPAIGN_ID = binds.campaign_id === null ? null : Number(binds.campaign_id)
+        if (binds.recipient_type !== undefined) target.RECIPIENT_TYPE = binds.recipient_type === null ? null : String(binds.recipient_type)
+      }
+      return { rowsAffected: target ? 1 : 0 }
+    }
+
     return { rowsAffected: 1 }
   }
 
   private _executeDelete(sql: string, binds: Record<string, unknown>) {
+    const upper = sql.toUpperCase()
+    const tableMatch = upper.match(/DELETE\s+FROM\s+(\w+)/)
+    if (!tableMatch) return { rowsAffected: 0 }
+    const table = tableMatch[1]
+
+    if (table === 'EMAIL_TRACKING') {
+      const boundCampaign = binds.campaign_id
+      if (boundCampaign) {
+        const before = EMAIL_TRACKING.length
+        for (let i = EMAIL_TRACKING.length - 1; i >= 0; i--) {
+          if (EMAIL_TRACKING[i].CAMPAIGN_ID === Number(boundCampaign)) EMAIL_TRACKING.splice(i, 1)
+        }
+        return { rowsAffected: before - EMAIL_TRACKING.length }
+      }
+      return { rowsAffected: 0 }
+    }
+
+    const boundId = binds.id || binds.p_id
+    if (!boundId) return { rowsAffected: 0 }
+    const idNum = Number(boundId)
+    const tables: { name: string; rows: { ID: number }[] }[] = [
+      { name: 'CONTENT', rows: CONTENT as unknown as { ID: number }[] },
+      { name: 'PROMOTIONS', rows: PROMOTIONS as unknown as { ID: number }[] },
+      { name: 'EMAIL_TEMPLATES', rows: EMAIL_TEMPLATES as unknown as { ID: number }[] },
+      { name: 'EMAIL_CAMPAIGNS', rows: EMAIL_CAMPAIGNS as unknown as { ID: number }[] },
+      { name: 'SUBSCRIBERS', rows: SUBSCRIBERS as unknown as { ID: number }[] },
+      { name: 'AI_GENERATED_CONTENT', rows: AI_GENERATED_CONTENT as unknown as { ID: number }[] },
+      { name: 'AI_CONTENT_VERSIONS', rows: AI_CONTENT_VERSIONS as unknown as { ID: number }[] },
+      { name: 'AI_CONTENT_DISTRIBUTIONS', rows: AI_CONTENT_DISTRIBUTIONS as unknown as { ID: number }[] },
+    ]
+    const found = tables.find(t => t.name === table)
+    if (!found) return { rowsAffected: 0 }
+    const idx = found.rows.findIndex(r => r.ID === idNum)
+    if (idx >= 0) {
+      found.rows.splice(idx, 1)
+      if (table === 'AI_GENERATED_CONTENT') {
+        for (let i = AI_CONTENT_VERSIONS.length - 1; i >= 0; i--) {
+          if (AI_CONTENT_VERSIONS[i].CONTENT_ID === idNum) AI_CONTENT_VERSIONS.splice(i, 1)
+        }
+        for (let i = AI_CONTENT_DISTRIBUTIONS.length - 1; i >= 0; i--) {
+          if (AI_CONTENT_DISTRIBUTIONS[i].CONTENT_ID === idNum) AI_CONTENT_DISTRIBUTIONS.splice(i, 1)
+        }
+      }
+      return { rowsAffected: 1 }
+    }
     return { rowsAffected: 0 }
   }
 

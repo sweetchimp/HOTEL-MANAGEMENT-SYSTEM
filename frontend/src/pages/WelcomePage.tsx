@@ -1,6 +1,10 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Check, ArrowRight } from 'lucide-react'
+import { ArrowRight, Check, Mail } from 'lucide-react'
+import { toast } from 'sonner'
+import { api } from '../services/api'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 const FEATURES = [
   'Room Management',
@@ -12,6 +16,28 @@ const FEATURES = [
 
 export default function WelcomePage() {
   const navigate = useNavigate()
+  const [email, setEmail] = useState('')
+  const [subscribing, setSubscribing] = useState(false)
+  const [subscribed, setSubscribed] = useState(false)
+
+  async function handleSubscribe() {
+    const trimmed = email.trim()
+    if (!/^\S+@\S+\.\S+$/.test(trimmed)) {
+      toast.error('Please enter a valid email address')
+      return
+    }
+    if (subscribing) return
+    setSubscribing(true)
+    const res = await api.post<{ status: string }>('/public/subscribe', { email: trimmed })
+    setSubscribing(false)
+    if (res.success) {
+      setSubscribed(true)
+      setEmail('')
+      toast.success('Subscribed!', { description: 'You will receive our news and offers.' })
+    } else {
+      toast.error('Subscription failed', { description: res.error })
+    }
+  }
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-primary-500 p-6">
@@ -80,6 +106,39 @@ export default function WelcomePage() {
         >
           Sign in <ArrowRight className="h-4 w-4" />
         </Button>
+
+        {/* Newsletter */}
+        <div className="mx-auto mt-8 w-full max-w-md rounded-xl border border-white/10 bg-white/10 p-4 backdrop-blur-sm sm:p-5">
+          <div className="flex items-center justify-center gap-2 text-white">
+            <Mail className="h-4 w-4 text-accent-400" />
+            <p className="text-sm font-semibold">Stay at the heart of ALTONS</p>
+          </div>
+          <p className="mt-1 text-xs text-primary-200">
+            Subscribe for seasonal offers and hotel news.
+          </p>
+          {subscribed ? (
+            <p className="mt-3 flex items-center justify-center gap-2 rounded-lg bg-white/10 px-3 py-2.5 text-sm font-medium text-accent-300">
+              <Check className="h-4 w-4" /> You are on the list. Thank you!
+            </p>
+          ) : (
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+              <Input
+                type="email"
+                placeholder="you@example.com"
+                aria-label="Email address"
+                className="flex-1 border-white/20 bg-white/95 text-[#1a1a1a] placeholder:text-steel-400"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') handleSubscribe()
+                }}
+              />
+              <Button variant="accent" disabled={subscribing} onClick={handleSubscribe}>
+                {subscribing ? 'Joining…' : 'Subscribe'}
+              </Button>
+            </div>
+          )}
+        </div>
 
         <p className="mt-8 text-xs text-primary-300">
           &copy; {new Date().getFullYear()} ALTONS Hotel. All rights reserved.

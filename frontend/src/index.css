@@ -85,3 +85,70 @@
     @apply overflow-x-auto;
   }
 }
+
+/* Phase 4 — TipTap rich text editor */
+.tiptap-editor .ProseMirror {
+  @apply min-h-[220px] px-4 py-3 text-sm leading-relaxed text-[#1a1a1a] outline-none;
+}
+.tiptap-editor .ProseMirror > * + * {
+  @apply mt-2;
+}
+.tiptap-editor .ProseMirror h1 {
+  @apply font-display text-2xl font-bold text-[#1a1a1a];
+}
+.tiptap-editor .ProseMirror h2 {
+  @apply font-display text-xl font-bold text-[#1a1a1a];
+}
+.tiptap-editor .ProseMirror h3 {
+  @apply font-display text-lg font-semibold text-[#1a1a1a];
+}
+.tiptap-editor .ProseMirror ul {
+  @apply list-disc pl-6;
+}
+.tiptap-editor .ProseMirror ol {
+  @apply list-decimal pl-6;
+}
+.tiptap-editor .ProseMirror li {
+  @apply mt-1;
+}
+.tiptap-editor .ProseMirror blockquote {
+  @apply border-l-4 border-accent-500 bg-dust-50 px-3 py-2 italic text-steel-700;
+}
+.tiptap-editor .ProseMirror a {
+  @apply text-primary-600 underline;
+}
+.tiptap-editor .ProseMirror img {
+  @apply my-3 max-h-80 rounded-lg border border-dust-300 object-contain;
+}
+.tiptap-editor .ProseMirror code {
+  @apply rounded bg-dust-100 px-1 py-0.5 text-[13px];
+}
+.tiptap-editor .ProseMirror pre {
+  @apply overflow-x-auto rounded-lg bg-primary-900 p-3 text-sm text-white;
+}
+.tiptap-editor .ProseMirror pre code {
+  @apply bg-transparent p-0 text-white;
+}
+.tiptap-editor .ProseMirror hr {
+  @apply border-dust-300;
+}
+
+/* Landing page — rendered content */
+.landing-content h2 {
+  @apply font-display text-xl font-bold text-[#1a1a1a];
+}
+.landing-content h3 {
+  @apply font-display text-lg font-semibold text-[#1a1a1a];
+}
+.landing-content p {
+  @apply mt-2 text-sm leading-relaxed text-steel-600;
+}
+.landing-content a {
+  @apply text-primary-600 underline;
+}
+.landing-content ul {
+  @apply mt-2 list-disc pl-5 text-sm text-steel-600;
+}
+.landing-content ol {
+  @apply mt-2 list-decimal pl-5 text-sm text-steel-600;
+}

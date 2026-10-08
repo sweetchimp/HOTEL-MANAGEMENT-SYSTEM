@@ -114,6 +114,46 @@ const ROUTES = {
   'GET /api/bookings/requests': './netlify/functions/booking-requests/list.ts',
   'PUT /api/bookings/:id/approve': './netlify/functions/booking-requests/approve.ts',
   'PUT /api/bookings/:id/reject': './netlify/functions/booking-requests/reject.ts',
+
+  // Phase 4 — Content creation & marketing
+  'GET /api/content': './netlify/functions/content/list.ts',
+  'POST /api/content': './netlify/functions/content/create.ts',
+  'GET /api/content/:id': './netlify/functions/content/get.ts',
+  'PUT /api/content/:id': './netlify/functions/content/update.ts',
+  'DELETE /api/content/:id': './netlify/functions/content/delete.ts',
+  'GET /api/promotions': './netlify/functions/promotions/list.ts',
+  'POST /api/promotions': './netlify/functions/promotions/create.ts',
+  'PUT /api/promotions/:id': './netlify/functions/promotions/update.ts',
+  'DELETE /api/promotions/:id': './netlify/functions/promotions/delete.ts',
+  'GET /api/email-templates': './netlify/functions/email-templates/list.ts',
+  'POST /api/email-templates': './netlify/functions/email-templates/create.ts',
+  'PUT /api/email-templates/:id': './netlify/functions/email-templates/update.ts',
+  'GET /api/email-campaigns': './netlify/functions/email-campaigns/list.ts',
+  'POST /api/email-campaigns/draft': './netlify/functions/email-campaigns/send.ts',
+  'POST /api/email-campaigns/send': './netlify/functions/email-campaigns/send.ts',
+  'POST /api/email-campaigns/schedule': './netlify/functions/email-campaigns/send.ts',
+  'GET /api/email-campaigns/recipient-counts': './netlify/functions/email-campaigns/recipient-counts.ts',
+  'GET /api/email-campaigns/:id/stats': './netlify/functions/email-campaigns/stats.ts',
+  'POST /api/email-campaigns/:id/test': './netlify/functions/email-campaigns/test.ts',
+  'DELETE /api/email-campaigns/:id': './netlify/functions/email-campaigns/delete.ts',
+  'GET /api/public/content': './netlify/functions/public/content.ts',
+  'GET /api/public/promotions': './netlify/functions/public/promotions.ts',
+  'POST /api/public/subscribe': './netlify/functions/public/subscribe.ts',
+  'POST /api/upload/image': './netlify/functions/upload/image.ts',
+  'GET /api/tracking/open/:campaign_id/:email': './netlify/functions/tracking/open.ts',
+  'GET /api/tracking/click/:campaign_id/:link_id': './netlify/functions/tracking/click.ts',
+
+  // Phase AI Content — AI content generator & distribution
+  'POST /api/ai/generate-content': './netlify/functions/ai-content/generate.ts',
+  'POST /api/ai/regenerate-content/:id': './netlify/functions/ai-content/regenerate.ts',
+  'GET /api/ai/content/history': './netlify/functions/ai-content/history.ts',
+  'GET /api/ai/content/:id': './netlify/functions/ai-content/content.ts',
+  'POST /api/ai/content/:id/approve': './netlify/functions/ai-content/approve.ts',
+  'POST /api/ai/distribute/:id': './netlify/functions/ai-content/distribute.ts',
+  'GET /api/ai/analytics': './netlify/functions/ai-content/analytics.ts',
+  'DELETE /api/ai/content/:id': './netlify/functions/ai-content/delete.ts',
+  'POST /api/social/instagram/post': './netlify/functions/social/instagram.ts',
+  'POST /api/social/whatsapp/send': './netlify/functions/social/whatsapp.ts',
 }
 
 function matchRoute(method, pathname) {
@@ -214,6 +254,34 @@ async function handleRequest(req, res) {
 }
 
 const server = createServer(handleRequest)
+
+// Phase 4 — deliver scheduled email campaigns every 60 seconds
+setInterval(async () => {
+  try {
+    const handlerPath = resolve(__dirname, './netlify/functions/email-campaigns/process-scheduled.ts')
+    const fileUrl = process.platform === 'win32'
+      ? 'file:///' + handlerPath.replace(/\\/g, '/')
+      : handlerPath
+    const mod = await import(fileUrl)
+    await mod.runScheduledCampaigns()
+  } catch (err) {
+    console.error('[SCHEDULER]', err instanceof Error ? err.message : err)
+  }
+}, 60_000)
+
+// Phase AI Content — reconcile scheduled AI distributions every 60 seconds
+setInterval(async () => {
+  try {
+    const handlerPath = resolve(__dirname, './netlify/functions/ai-content/_shared/distribute.ts')
+    const fileUrl = process.platform === 'win32'
+      ? 'file:///' + handlerPath.replace(/\\/g, '/')
+      : handlerPath
+    const mod = await import(fileUrl)
+    await mod.runScheduledDistributions()
+  } catch (err) {
+    console.error('[AI SCHEDULER]', err instanceof Error ? err.message : err)
+  }
+}, 60_000)
 
 server.listen(PORT, () => {
   console.log('')

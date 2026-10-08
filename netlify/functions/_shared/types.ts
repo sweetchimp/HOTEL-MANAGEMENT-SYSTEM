@@ -468,3 +468,308 @@ export interface AuditListParams {
   page?: number
   pageSize?: number
 }
+
+// ============================================================
+// Phase 4 � Content Creation & Marketing
+// ============================================================
+
+export interface DbContent {
+  ID: number
+  TITLE: string
+  TYPE: 'news' | 'announcement' | 'event'
+  BODY: string
+  FEATURED_IMAGE_URL: string | null
+  STATUS: 'draft' | 'published' | 'archived'
+  PUBLISHED_AT: string | null
+  CREATED_BY: number | null
+  CREATED_AT: string
+  UPDATED_AT: string
+}
+
+export interface ContentListParams {
+  type?: string
+  status?: string
+  search?: string
+  page?: number
+  pageSize?: number
+}
+
+export interface CreateContentRequest {
+  title: string
+  type: string
+  body: string
+  featured_image_url?: string | null
+  status: 'draft' | 'published'
+}
+
+export interface UpdateContentRequest extends CreateContentRequest {}
+
+export interface DbPromotion {
+  ID: number
+  TITLE: string
+  DESCRIPTION: string
+  DISCOUNT_PCT: number
+  START_DATE: string
+  END_DATE: string
+  APPLICABLE_ROOM_TYPES: string
+  STATUS: 'draft' | 'active' | 'archived'
+  CREATED_BY: number | null
+  CREATED_AT: string
+  UPDATED_AT: string
+}
+
+export interface PromotionListParams {
+  status?: string
+  search?: string
+  sort?: string
+  page?: number
+  pageSize?: number
+}
+
+export interface CreatePromotionRequest {
+  title: string
+  description?: string
+  discount_pct: number
+  start_date: string
+  end_date: string
+  applicable_room_types?: number[] | string
+  status: 'draft' | 'active'
+}
+
+export interface UpdatePromotionRequest extends CreatePromotionRequest {
+  status: 'draft' | 'active' | 'archived'
+}
+
+export interface DbEmailTemplate {
+  ID: number
+  NAME: string
+  SUBJECT: string
+  BODY: string
+  TYPE: string
+  PLACEHOLDERS: string
+  IS_SYSTEM: number
+  CREATED_BY: number | null
+  CREATED_AT: string
+  UPDATED_AT: string
+}
+
+export interface CreateTemplateRequest {
+  name: string
+  subject: string
+  body: string
+  type: string
+  placeholders?: string[]
+}
+
+export interface DbEmailCampaign {
+  ID: number
+  TITLE: string
+  TEMPLATE_ID: number | null
+  RECIPIENT_TYPE: 'all_guests' | 'past_guests' | 'newsletter_subscribers'
+  RECIPIENT_COUNT: number
+  STATUS: 'draft' | 'scheduled' | 'sent' | 'failed'
+  SCHEDULED_AT: string | null
+  SENT_AT: string | null
+  SUBJECT_OVERRIDE: string | null
+  BODY_OVERRIDE: string | null
+  OPEN_COUNT: number
+  CLICK_COUNT: number
+  CREATED_BY: number | null
+  CREATED_AT: string
+}
+
+export interface SendCampaignRequest {
+  title: string
+  template_id?: number | null
+  recipient_type: 'all_guests' | 'past_guests' | 'newsletter_subscribers'
+  subject?: string
+  body?: string
+  scheduled_at?: string
+}
+
+export interface DbTrackingEvent {
+  ID: number
+  CAMPAIGN_ID: number
+  RECIPIENT_EMAIL: string
+  EVENT_TYPE: 'open' | 'click'
+  LINK_URL: string | null
+  USER_AGENT: string | null
+  IP_ADDRESS: string | null
+  CREATED_AT: string
+}
+
+export interface CampaignStats {
+  campaign_id: number
+  total_sent: number
+  total_opens: number
+  open_rate: number
+  total_clicks: number
+  click_rate: number
+  opens_by_day: { date: string; count: number }[]
+  top_links: { url: string; count: number }[]
+}
+
+export interface RecipientCounts {
+  all_guests: number
+  past_guests: number
+  newsletter_subscribers: number
+}
+
+export interface DbSubscriber {
+  ID: number
+  EMAIL: string
+  STATUS: 'active' | 'unsubscribed'
+  SUBSCRIBED_AT: string
+  CREATED_AT: string
+}
+
+// ============================================================
+// Phase AI Content — AI-powered content generator
+// ============================================================
+
+export type AiContentType = 'flyer' | 'email' | 'instagram_post' | 'whatsapp_message' | 'newsletter'
+export type AiContentStatus = 'draft' | 'approved' | 'scheduled' | 'published'
+export type AiChannel = 'email' | 'newsletter' | 'instagram' | 'whatsapp'
+export type AiDistributionStatus = 'pending' | 'scheduled' | 'sent' | 'failed' | 'manual'
+export type AiProvider = 'anthropic' | 'mock'
+
+export interface DbAiGeneratedContent {
+  ID: number
+  TITLE: string
+  TYPE: AiContentType
+  ADMIN_PROMPT: string
+  GENERATED_CONTENT: string
+  FLYER_IMAGE_URL: string | null
+  FLYER_DATA: string | null
+  STATUS: AiContentStatus
+  BRAND_GUIDELINES: string | null
+  CREATED_BY: number | null
+  CREATED_AT: string
+  UPDATED_AT: string
+  APPROVED_BY: number | null
+  APPROVED_AT: string | null
+}
+
+export interface DbAiContentVersion {
+  ID: number
+  CONTENT_ID: number
+  VERSION_NUMBER: number
+  GENERATED_CONTENT: string
+  REASON: string
+  GENERATED_BY: number | null
+  GENERATED_AT: string
+}
+
+export interface DbAiDistribution {
+  ID: number
+  CONTENT_ID: number
+  CHANNEL: AiChannel
+  RECIPIENT_TYPE: 'all_guests' | 'past_guests' | 'newsletter_subscribers' | null
+  RECIPIENT_COUNT: number
+  STATUS: AiDistributionStatus
+  SCHEDULED_AT: string | null
+  SENT_AT: string | null
+  ENGAGEMENT_COUNT: number
+  CAMPAIGN_ID: number | null
+  CREATED_BY: number | null
+  CREATED_AT: string
+}
+
+// Structured payloads produced by the generator (serialized to
+// GENERATED_CONTENT as JSON).
+export interface AiGeneratedFlyer {
+  headline: string
+  subtitle: string
+  details: string
+  cta_text: string
+  accent_color: string
+}
+
+export interface AiGeneratedEmail {
+  subject: string
+  preheader: string
+  headline: string
+  body_html: string
+  cta_label: string
+  cta_url: string
+}
+
+export interface AiGeneratedInstagram {
+  caption: string
+  hashtags: string
+}
+
+export interface AiGeneratedWhatsapp {
+  message: string
+}
+
+export type AiGeneratedBundle =
+  | { type: 'flyer'; content: AiGeneratedFlyer; flyerSvg: string }
+  | { type: 'email'; content: AiGeneratedEmail }
+  | { type: 'instagram_post'; content: AiGeneratedInstagram }
+  | { type: 'whatsapp_message'; content: AiGeneratedWhatsapp }
+  | { type: 'newsletter'; content: AiGeneratedEmail }
+
+export interface GenerateContentRequest {
+  type: AiContentType
+  prompt: string
+  brand_guidelines?: string
+  title?: string
+}
+
+export interface RegenerateContentRequest {
+  reason?: string
+}
+
+export interface DistributeContentRequest {
+  channel: AiChannel
+  recipient_type?: 'all_guests' | 'past_guests' | 'newsletter_subscribers'
+  scheduled_at?: string | null
+}
+
+export interface AiContentListParams {
+  type?: string
+  status?: string
+  search?: string
+  page?: number
+  pageSize?: number
+}
+
+export interface AiContentDetail {
+  content: DbAiGeneratedContent
+  content_payload: Record<string, unknown> | null
+  versions: DbAiContentVersion[]
+  distributions: DbAiDistribution[]
+}
+
+export interface AiChannelStats {
+  channel: AiChannel
+  sent_count: number
+  scheduled_count: number
+  total_recipients: number
+  engagement_count: number
+}
+
+export interface AiAnalytics {
+  total_content: number
+  total_approved: number
+  total_sent: number
+  total_recipients: number
+  total_engagements: number
+  approval_rate: number
+  by_type: { type: AiContentType; count: number }[]
+  by_status: { status: AiContentStatus; count: number }[]
+  by_channel: AiChannelStats[]
+  recent_generated: { id: number; title: string; type: AiContentType; status: AiContentStatus; created_at: string }[]
+}
+
+export interface DistributeResult {
+  distribution_id: number
+  channel: AiChannel
+  status: AiDistributionStatus
+  recipient_count: number
+  campaign_id: number | null
+  scheduled_at: string | null
+  sent_at: string | null
+  preview?: string
+}

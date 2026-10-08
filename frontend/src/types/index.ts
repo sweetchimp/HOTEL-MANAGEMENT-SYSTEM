@@ -458,3 +458,295 @@ export interface PublicBookingPayload {
   payment_method?: string
   promo?: string
 }
+
+// ============================================================
+// Phase 4 � Content creation & marketing
+// ============================================================
+
+export type ContentType = 'news' | 'announcement' | 'event'
+export type ContentStatus = 'draft' | 'published' | 'archived'
+export type PromotionStatus = 'draft' | 'active' | 'archived'
+export type DisplayPromotionStatus = PromotionStatus | 'upcoming' | 'expired'
+export type CampaignStatus = 'draft' | 'scheduled' | 'sent' | 'failed'
+export type RecipientType = 'all_guests' | 'past_guests' | 'newsletter_subscribers'
+
+export interface ContentItem {
+  ID: number
+  TITLE: string
+  TYPE: ContentType
+  BODY: string
+  FEATURED_IMAGE_URL: string | null
+  STATUS: ContentStatus
+  PUBLISHED_AT: string | null
+  CREATED_BY: number | null
+  CREATED_AT: string
+  UPDATED_AT: string
+}
+
+export interface ContentForm {
+  title: string
+  type: ContentType
+  body: string
+  featured_image_url: string | null
+  status: 'draft' | 'published'
+}
+
+export interface Promotion {
+  ID: number
+  TITLE: string
+  DESCRIPTION: string | null
+  DISCOUNT_PCT: number
+  START_DATE: string
+  END_DATE: string
+  APPLICABLE_ROOM_TYPES: string | null
+  STATUS: PromotionStatus
+  CREATED_BY: number | null
+  CREATED_AT: string
+  UPDATED_AT: string
+  display_status: DisplayPromotionStatus
+}
+
+export interface PromotionForm {
+  title: string
+  description: string
+  discount_pct: number
+  start_date: string
+  end_date: string
+  applicable_room_types: number[]
+  status: 'draft' | 'active'
+}
+
+export interface EmailTemplate {
+  ID: number
+  NAME: string
+  SUBJECT: string
+  BODY: string
+  TYPE: string
+  PLACEHOLDERS: string | null
+  IS_SYSTEM: number
+  CREATED_BY: number | null
+  CREATED_AT: string
+  UPDATED_AT: string
+}
+
+export interface EmailCampaign {
+  ID: number
+  TITLE: string
+  TEMPLATE_ID: number | null
+  RECIPIENT_TYPE: RecipientType
+  RECIPIENT_COUNT: number
+  STATUS: CampaignStatus
+  SCHEDULED_AT: string | null
+  SENT_AT: string | null
+  SUBJECT_OVERRIDE: string | null
+  BODY_OVERRIDE: string | null
+  OPEN_COUNT: number
+  CLICK_COUNT: number
+  CREATED_BY: number | null
+  CREATED_AT: string
+  TEMPLATE_NAME?: string | null
+  open_rate?: number
+  click_rate?: number
+  total_opens?: number
+  total_clicks?: number
+}
+
+export interface CampaignStats {
+  campaign_id: number
+  total_sent: number
+  total_opens: number
+  open_rate: number
+  total_clicks: number
+  click_rate: number
+  opens_by_day: { date: string; count: number }[]
+  top_links: { url: string; count: number }[]
+}
+
+export interface RecipientCounts {
+  all_guests: number
+  past_guests: number
+  newsletter_subscribers: number
+}
+
+export interface CampaignPayload {
+  title: string
+  template_id?: number | null
+  recipient_type: RecipientType
+  subject?: string
+  body?: string
+  scheduled_at?: string
+}
+
+// ============================================================
+// AI Content Generator — hub types
+// ============================================================
+
+export type AiContentType = 'flyer' | 'email' | 'instagram_post' | 'whatsapp_message' | 'newsletter'
+export type AiContentStatus = 'draft' | 'approved' | 'scheduled' | 'published'
+export type AiChannel = 'email' | 'newsletter' | 'instagram' | 'whatsapp'
+export type AiDistributionStatus = 'pending' | 'scheduled' | 'sent' | 'failed' | 'manual'
+export type AiProvider = 'anthropic' | 'mock'
+export type AiRecipientType = 'all_guests' | 'past_guests' | 'newsletter_subscribers'
+
+export interface AiGeneratedFlyer {
+  headline: string
+  subtitle: string
+  details: string
+  cta_text: string
+  accent_color: string
+}
+
+export interface AiGeneratedEmail {
+  subject: string
+  preheader: string
+  headline: string
+  body_html: string
+  cta_label: string
+  cta_url: string
+}
+
+export interface AiGeneratedInstagram {
+  caption: string
+  hashtags: string
+}
+
+export interface AiGeneratedWhatsapp {
+  message: string
+}
+
+export interface AiContentRow {
+  ID: number
+  TITLE: string
+  TYPE: AiContentType
+  ADMIN_PROMPT: string
+  GENERATED_CONTENT: string
+  FLYER_IMAGE_URL: string | null
+  FLYER_DATA: string | null
+  STATUS: AiContentStatus
+  BRAND_GUIDELINES: string | null
+  CREATED_BY: number | null
+  CREATED_AT: string
+  UPDATED_AT: string
+  APPROVED_BY: number | null
+  APPROVED_AT: string | null
+}
+
+export interface AiContentListItem {
+  ID: number
+  TITLE: string
+  TYPE: AiContentType
+  STATUS: AiContentStatus
+  BRAND_GUIDELINES: string | null
+  CREATED_BY: number | null
+  CREATED_AT: string
+  UPDATED_AT: string
+  APPROVED_BY: number | null
+  APPROVED_AT: string | null
+  FLYER_IMAGE_URL: string | null
+  DISTRIBUTION_COUNT: number
+}
+
+export interface AiContentVersion {
+  ID: number
+  CONTENT_ID: number
+  VERSION_NUMBER: number
+  GENERATED_CONTENT: string
+  REASON: string
+  GENERATED_BY: number | null
+  GENERATED_AT: string
+}
+
+export interface AiDistributionRow {
+  ID: number
+  CONTENT_ID: number
+  CHANNEL: AiChannel
+  RECIPIENT_TYPE: string | null
+  RECIPIENT_COUNT: number
+  STATUS: AiDistributionStatus
+  SCHEDULED_AT: string | null
+  SENT_AT: string | null
+  ENGAGEMENT_COUNT: number
+  CAMPAIGN_ID: number | null
+  CREATED_BY: number | null
+  CREATED_AT: string
+  campaign_status?: string | null
+  engagement?: number
+}
+
+export interface AiContentDetail {
+  content: AiContentRow
+  content_payload: Record<string, unknown> | null
+  versions: AiContentVersion[]
+  distributions: AiDistributionRow[]
+}
+
+export interface AiGenerateResult {
+  id: number
+  title: string
+  type: AiContentType
+  status: AiContentStatus
+  provider: AiProvider
+  flyer_image_url: string | null
+  content_payload: Record<string, unknown> | null
+}
+
+export interface AiRegenerateResult {
+  id: number
+  version: number
+  status: AiContentStatus
+  provider: AiProvider
+  content_payload: Record<string, unknown> | null
+  flyer_image_url: string | null
+}
+
+export interface AiApproveResult {
+  id: number
+  status: AiContentStatus
+}
+
+export interface AiDistributeRequest {
+  channel: AiChannel
+  recipient_type?: AiRecipientType
+  scheduled_at?: string | null
+}
+
+export interface AiDistributeResult {
+  distribution_id: number
+  channel: AiChannel
+  status: AiDistributionStatus
+  recipient_count: number
+  campaign_id: number | null
+  scheduled_at: string | null
+  sent_at: string | null
+  preview?: string
+}
+
+export interface AiSocialResult {
+  distribution_id: number
+  status: AiDistributionStatus
+  note?: string
+  caption?: string | null
+  image_url?: string | null
+  message?: string
+}
+
+export interface AiChannelStats {
+  channel: AiChannel
+  sent_count: number
+  scheduled_count: number
+  total_recipients: number
+  engagement_count: number
+}
+
+export interface AiAnalytics {
+  total_content: number
+  total_approved: number
+  total_sent: number
+  total_recipients: number
+  total_engagements: number
+  approval_rate: number
+  by_type: { type: AiContentType; count: number }[]
+  by_status: { status: AiContentStatus; count: number }[]
+  by_channel: AiChannelStats[]
+  recent_generated: { id: number; title: string; type: AiContentType; status: AiContentStatus; created_at: string }[]
+}

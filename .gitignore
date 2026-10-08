@@ -34,6 +34,9 @@ coverage/
 # TypeScript
 *.tsbuildinfo
 
+# Runtime uploads (images + AI flyer SVGs served by the frontend)
+frontend/public/uploads/
+
 # Oracle
 *.ora
 *.lck
