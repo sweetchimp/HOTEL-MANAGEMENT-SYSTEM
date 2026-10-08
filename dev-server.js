@@ -62,6 +62,7 @@ const ROUTES = {
   'POST /api/reservations/:id/confirm': './netlify/functions/reservations/confirm.ts',
   'GET /api/dashboard/stats': './netlify/functions/dashboard/stats.ts',
   'POST /api/checkin/process': './netlify/functions/checkin/process.ts',
+  'POST /api/checkin/walk-in': './netlify/functions/checkin/walk-in.ts',
   'GET /api/checkin/list': './netlify/functions/checkin/list.ts',
   'POST /api/checkout/process': './netlify/functions/checkout/process.ts',
   'GET /api/checkout/list': './netlify/functions/checkout/list.ts',

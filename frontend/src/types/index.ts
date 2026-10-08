@@ -152,6 +152,36 @@ export interface CheckinRecord {
   ROOM_STATUS: string
 }
 
+export interface ProcessCheckInResult {
+  checkin_id: number
+  booking_id: number
+  room_number: string
+}
+
+export interface WalkInPayload {
+  guest_name: string
+  guest_email?: string
+  guest_phone: string
+  id_type: string
+  id_number: string
+  room_type_id: number
+  room_id: number
+  check_in_date: string
+  check_out_date: string
+  num_guests: number
+  notes?: string
+}
+
+export interface WalkInResult {
+  checkin_id: number
+  booking_id: number
+  reservation_id: number
+  guest_id: number
+  room_number: string
+  nights: number
+  total: number
+}
+
 export interface CheckoutRecord {
   CHECKOUT_ID: number
   CHECKIN_ID: number

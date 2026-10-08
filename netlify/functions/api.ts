@@ -38,6 +38,7 @@ const ROUTES: Record<string, RouteLoader> = {
   'POST /api/reservations/:id/confirm': () => import('./reservations/confirm'),
   'GET /api/dashboard/stats': () => import('./dashboard/stats'),
   'POST /api/checkin/process': () => import('./checkin/process'),
+  'POST /api/checkin/walk-in': () => import('./checkin/walk-in'),
   'GET /api/checkin/list': () => import('./checkin/list'),
   'POST /api/checkout/process': () => import('./checkout/process'),
   'GET /api/checkout/list': () => import('./checkout/list'),

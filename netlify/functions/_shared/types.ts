@@ -309,8 +309,22 @@ export interface AvailableRoom {
 
 // --- Check-in / Check-out ---
 export interface ProcessCheckInRequest {
-  booking_id: number
+  reservation_id: number
   room_id: number
+  notes?: string
+}
+
+export interface WalkInCheckInRequest {
+  guest_name: string
+  guest_email?: string
+  guest_phone: string
+  id_type: string
+  id_number: string
+  room_type_id: number
+  room_id: number
+  check_in_date: string
+  check_out_date: string
+  num_guests: number
   notes?: string
 }
 

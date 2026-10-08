@@ -677,6 +677,7 @@ class MockConnection {
       if (boundBookingId) {
         const b = BOOKINGS.find(b => b.BOOKING_ID === Number(boundBookingId))
         if (b && binds.status) b.STATUS = String(binds.status)
+        if (b && binds.room_id !== undefined) b.ROOM_ID = Number(binds.room_id)
       }
       // Handle text status values
       const statusMatch = upper.match(/SET\s+STATUS\s*=\s*'(\w+)'/)
