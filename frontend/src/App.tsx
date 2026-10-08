@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { Toaster } from 'sonner'
 import { AuthProvider } from './components/auth/AuthProvider'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import DashboardLayout from './layouts/DashboardLayout'
@@ -52,6 +53,19 @@ function App() {
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          style: {
+            background: '#ffffff',
+            border: '1px solid #dbd4cc',
+            color: '#1a1a1a',
+            borderRadius: '0.75rem',
+            boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.05)',
+            fontFamily: "'Inter', system-ui, sans-serif",
+          },
+        }}
+      />
     </AuthProvider>
   )
 }

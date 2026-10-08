@@ -1,7 +1,57 @@
 import { useEffect, useState } from 'react'
+import {
+  Plus,
+  Pencil,
+  AlertCircle,
+  Inbox,
+  ChevronLeft,
+  ChevronRight,
+  CalendarDays,
+  ArrowRight,
+  Check,
+  X,
+  UserRound,
+} from 'lucide-react'
+import { toast } from 'sonner'
 import { api } from '../services/api'
 import { formatCurrency } from '../utils/currency'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Input, Textarea } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import type { ReservationListItem, GuestListItem, RoomType, PaginatedResponse } from '../types'
+
+const statusVariant: Record<string, 'success' | 'destructive' | 'warning' | 'info' | 'neutral'> = {
+  PENDING: 'warning',
+  CONFIRMED: 'info',
+  CHECKED_IN: 'success',
+  COMPLETED: 'neutral',
+  CANCELLED: 'destructive',
+}
+
+const statusLabel: Record<string, string> = {
+  PENDING: 'Pending',
+  CONFIRMED: 'Confirmed',
+  CHECKED_IN: 'Checked In',
+  COMPLETED: 'Completed',
+  CANCELLED: 'Cancelled',
+}
 
 export default function ReservationsPage() {
   const [reservations, setReservations] = useState<ReservationListItem[]>([])
@@ -18,6 +68,7 @@ export default function ReservationsPage() {
   // Form state
   const [showForm, setShowForm] = useState(false)
   const [editingRes, setEditingRes] = useState<ReservationListItem | null>(null)
+  const [saving, setSaving] = useState(false)
   const [guestSearch, setGuestSearch] = useState('')
   const [selectedGuest, setSelectedGuest] = useState<GuestListItem | null>(null)
   const [form, setForm] = useState({
@@ -53,7 +104,7 @@ export default function ReservationsPage() {
 
   async function loadReservations() {
     setLoading(true)
-    let url = `/reservations?page=${page}&pageSize=10`
+    let url = `/reservations?page=${page}&pageSize=12`
     if (filterStatus) url += `&status=${filterStatus}`
 
     const res = await api.get<PaginatedResponse<ReservationListItem>>(url)
@@ -93,6 +144,7 @@ export default function ReservationsPage() {
 
   async function handleSave() {
     if (!form.guest_id || !form.check_in_date || !form.check_out_date) return
+    setSaving(true)
 
     if (editingRes) {
       const res = await api.put(`/reservations/${editingRes.RESERVATION_ID}`, {
@@ -102,29 +154,36 @@ export default function ReservationsPage() {
         special_requests: form.special_requests,
       })
       if (res.success) {
+        toast.success('Reservation updated', { description: `Reservation #${editingRes.RESERVATION_ID} has been saved.` })
         setShowForm(false)
         loadReservations()
       } else {
         setError(res.error || 'Failed to update reservation')
+        toast.error('Update failed', { description: res.error })
       }
     } else {
       const res = await api.post('/reservations', form)
       if (res.success) {
+        toast.success('Reservation created', { description: 'Your new reservation has been listed.' })
         setShowForm(false)
         loadReservations()
       } else {
         setError(res.error || 'Failed to create reservation')
+        toast.error('Create failed', { description: res.error })
       }
     }
+    setSaving(false)
   }
 
   async function handleConfirm(id: number) {
     if (!confirm('Confirm this reservation?')) return
     const res = await api.post(`/reservations/${id}/confirm`)
     if (res.success) {
+      toast.success(`Reservation #${id} confirmed`)
       loadReservations()
     } else {
       setError(res.error || 'Failed to confirm reservation')
+      toast.error('Confirm failed', { description: res.error })
     }
   }
 
@@ -132,25 +191,15 @@ export default function ReservationsPage() {
     if (!confirm('Cancel this reservation?')) return
     const res = await api.post(`/reservations/${id}/cancel`)
     if (res.success) {
+      toast.success(`Reservation #${id} cancelled`)
       loadReservations()
     } else {
       setError(res.error || 'Failed to cancel reservation')
-    }
-  }
-
-  function getStatusBadge(status: string) {
-    switch (status) {
-      case 'PENDING': return <span className="badge-warning">Pending</span>
-      case 'CONFIRMED': return <span className="badge-info">Confirmed</span>
-      case 'CHECKED_IN': return <span className="badge-success">Checked In</span>
-      case 'COMPLETED': return <span className="badge-neutral">Completed</span>
-      case 'CANCELLED': return <span className="badge-danger">Cancelled</span>
-      default: return <span className="badge-neutral">{status}</span>
+      toast.error('Cancel failed', { description: res.error })
     }
   }
 
   function getGuestName(guestId: number) {
-    // In a real app, we'd join this data. For now, show the ID
     return `Guest #${guestId}`
   }
 
@@ -158,230 +207,301 @@ export default function ReservationsPage() {
     return roomTypes.find(t => t.type_id === typeId)?.type_name || `Type ${typeId}`
   }
 
-  const totalPages = Math.ceil(total / 10)
+  const totalPages = Math.ceil(total / 12)
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3 animate-slide-up">
         <div>
-          <h1 className="text-2xl font-semibold text-surface-900">Reservations</h1>
-          <p className="text-surface-500 mt-1">Create and manage hotel reservations.</p>
+          <h1 className="font-display text-2xl font-semibold text-[#1a1a1a]">Reservations</h1>
+          <p className="mt-1 text-steel-600">Create and manage hotel reservations.</p>
         </div>
-        <button className="btn-primary" onClick={openCreate}>New Reservation</button>
+        <Button onClick={openCreate}>
+          <Plus className="h-4 w-4" /> New Reservation
+        </Button>
       </div>
 
       {error && (
-        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-          {error}
-          <button className="ml-2 underline" onClick={() => setError('')}>Dismiss</button>
+        <div className="mt-4 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+          <span className="flex-1">{error}</span>
+          <button className="underline" onClick={() => setError('')}>Dismiss</button>
         </div>
       )}
 
       {/* Filters */}
-      <div className="card mt-6">
-        <div className="flex gap-4">
-          <div>
-            <label className="block text-sm font-medium text-surface-600 mb-1">Status</label>
-            <select
-              className="input-field w-40"
-              value={filterStatus}
-              onChange={e => { setFilterStatus(e.target.value); setPage(1) }}
-            >
-              <option value="">All</option>
-              <option value="PENDING">Pending</option>
-              <option value="CONFIRMED">Confirmed</option>
-              <option value="CHECKED_IN">Checked In</option>
-              <option value="COMPLETED">Completed</option>
-              <option value="CANCELLED">Cancelled</option>
-            </select>
+      <Card className="mt-6 animate-slide-up">
+        <CardContent className="p-4">
+          <div className="flex flex-wrap items-end gap-4">
+            <div className="space-y-1">
+              <Label>Status</Label>
+              <Select
+                value={filterStatus || 'all'}
+                onValueChange={v => { setFilterStatus(v === 'all' ? '' : v); setPage(1) }}
+              >
+                <SelectTrigger className="h-10 w-44">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All statuses</SelectItem>
+                  <SelectItem value="PENDING">Pending</SelectItem>
+                  <SelectItem value="CONFIRMED">Confirmed</SelectItem>
+                  <SelectItem value="CHECKED_IN">Checked In</SelectItem>
+                  <SelectItem value="COMPLETED">Completed</SelectItem>
+                  <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {filterStatus && (
+              <Button variant="ghost" size="sm" onClick={() => { setFilterStatus(''); setPage(1) }}>
+                Clear filter
+              </Button>
+            )}
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Reservation cards */}
+      {loading ? (
+        <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Card key={i}>
+              <CardContent className="space-y-3 p-5">
+                <div className="flex justify-between">
+                  <Skeleton className="h-5 w-28" />
+                  <Skeleton className="h-5 w-20 rounded-full" />
+                </div>
+                <Skeleton className="h-4 w-36" />
+                <Skeleton className="h-4 w-48" />
+                <Skeleton className="h-9 w-full" />
+              </CardContent>
+            </Card>
+          ))}
         </div>
-      </div>
-
-      {/* Table */}
-      <div className="card mt-4">
-        {loading ? (
-          <p className="text-center py-8 text-surface-400">Loading...</p>
-        ) : reservations.length === 0 ? (
-          <p className="text-center py-8 text-surface-400">No reservations found</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-surface-200">
-                  <th className="text-left py-3 px-4 font-medium text-surface-600">#</th>
-                  <th className="text-left py-3 px-4 font-medium text-surface-600">Guest</th>
-                  <th className="text-left py-3 px-4 font-medium text-surface-600">Room Type</th>
-                  <th className="text-left py-3 px-4 font-medium text-surface-600">Check-in</th>
-                  <th className="text-left py-3 px-4 font-medium text-surface-600">Check-out</th>
-                  <th className="text-left py-3 px-4 font-medium text-surface-600">Status</th>
-                  <th className="text-right py-3 px-4 font-medium text-surface-600">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {reservations.map(res => (
-                  <tr key={res.RESERVATION_ID} className="border-b border-surface-100 hover:bg-surface-50">
-                    <td className="py-3 px-4">{res.RESERVATION_ID}</td>
-                    <td className="py-3 px-4 font-medium">{getGuestName(res.GUEST_ID)}</td>
-                    <td className="py-3 px-4">{getTypeName(res.ROOM_TYPE_ID)}</td>
-                    <td className="py-3 px-4">{res.CHECK_IN_DATE}</td>
-                    <td className="py-3 px-4">{res.CHECK_OUT_DATE}</td>
-                    <td className="py-3 px-4">{getStatusBadge(res.STATUS)}</td>
-                    <td className="py-3 px-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        {res.STATUS === 'PENDING' && (
-                          <>
-                            <button
-                              className="text-xs text-green-600 hover:underline"
-                              onClick={() => handleConfirm(res.RESERVATION_ID)}
-                            >
-                              Confirm
-                            </button>
-                            <button
-                              className="text-xs text-primary-600 hover:underline"
-                              onClick={() => openEdit(res)}
-                            >
-                              Edit
-                            </button>
-                          </>
-                        )}
-                        {(res.STATUS === 'PENDING' || res.STATUS === 'CONFIRMED') && (
-                          <button
-                            className="text-xs text-red-600 hover:underline"
-                            onClick={() => handleCancel(res.RESERVATION_ID)}
-                          >
-                            Cancel
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between mt-4 pt-4 border-t border-surface-200">
-            <p className="text-sm text-surface-500">
-              Showing {((page - 1) * 10) + 1} to {Math.min(page * 10, total)} of {total}
+      ) : reservations.length === 0 ? (
+        <Card className="mt-6 animate-fade-in">
+          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-dust-100">
+              <Inbox className="h-7 w-7 text-steel-500" />
+            </div>
+            <p className="mt-4 font-medium text-steel-700">No reservations found</p>
+            <p className="mt-1 text-sm text-steel-500">
+              {filterStatus ? 'Try a different status filter.' : 'Create your first reservation to get started.'}
             </p>
-            <div className="flex gap-2">
-              <button
-                className="btn-secondary text-sm"
-                disabled={page === 1}
-                onClick={() => setPage(p => p - 1)}
-              >
-                Prev
-              </button>
-              <button
-                className="btn-secondary text-sm"
-                disabled={page === totalPages}
-                onClick={() => setPage(p => p + 1)}
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-2 xl:grid-cols-3">
+          {reservations.map((res, i) => (
+            <Card
+              key={res.RESERVATION_ID}
+              className="group animate-slide-up transition-all duration-200 hover:-translate-y-1 hover:shadow-lift"
+              style={{ animationDelay: `${Math.min(i, 8) * 50}ms` }}
+            >
+              <div className="h-1 w-full bg-primary-500 transition-colors duration-200 group-hover:bg-accent-500" />
+              <CardContent className="p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="neutral">#{res.RESERVATION_ID}</Badge>
+                    <span className="text-sm font-semibold text-[#1a1a1a]">
+                      {getTypeName(res.ROOM_TYPE_ID)}
+                    </span>
+                  </div>
+                  <Badge variant={statusVariant[res.STATUS] ?? 'neutral'}>
+                    {statusLabel[res.STATUS] ?? res.STATUS}
+                  </Badge>
+                </div>
 
-      {/* Create/Edit Form */}
-      {showForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 p-6">
-            <h2 className="text-lg font-semibold mb-4">
-              {editingRes ? 'Edit Reservation' : 'New Reservation'}
-            </h2>
-            <div className="space-y-4">
-              {!editingRes && (
-                <div>
-                  <label className="block text-sm font-medium text-surface-600 mb-1">Search Guest *</label>
-                  <input
-                    className="input-field"
-                    placeholder="Type name or email to search..."
-                    value={guestSearch}
-                    onChange={e => setGuestSearch(e.target.value)}
-                  />
-                  {guests.length > 0 && (
-                    <div className="mt-1 border border-surface-200 rounded-lg max-h-40 overflow-y-auto">
-                      {guests.map(g => (
-                        <button
-                          key={g.GUEST_ID}
-                          className="w-full text-left px-3 py-2 hover:bg-surface-50 text-sm"
-                          onClick={() => {
-                            setSelectedGuest(g)
-                            setForm({ ...form, guest_id: g.GUEST_ID })
-                            setGuestSearch(`${g.FIRST_NAME} ${g.LAST_NAME}`)
-                            setGuests([])
-                          }}
-                        >
-                          {g.FIRST_NAME} {g.LAST_NAME} — {g.EMAIL}
-                        </button>
-                      ))}
-                    </div>
+                <div className="mt-3 flex items-center gap-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-100">
+                    <UserRound className="h-4 w-4 text-primary-600" />
+                  </div>
+                  <p className="font-display text-base font-bold text-[#1a1a1a]">
+                    {getGuestName(res.GUEST_ID)}
+                  </p>
+                </div>
+
+                {/* Timeline-style dates */}
+                <div className="mt-3 flex items-center gap-2 rounded-lg bg-dust-50 px-3 py-2 text-sm text-steel-700">
+                  <CalendarDays className="h-4 w-4 shrink-0 text-primary-500" />
+                  <span className="font-medium">{res.CHECK_IN_DATE}</span>
+                  <ArrowRight className="h-3 w-3 shrink-0 text-accent-600" />
+                  <span className="font-medium">{res.CHECK_OUT_DATE}</span>
+                </div>
+
+                {/* Quick actions */}
+                <div className="mt-4 flex flex-wrap gap-2 border-t border-dust-200 pt-4">
+                  {res.STATUS === 'PENDING' && (
+                    <Button
+                      size="sm"
+                      variant="accent"
+                      onClick={() => handleConfirm(res.RESERVATION_ID)}
+                    >
+                      <Check className="h-3.5 w-3.5" /> Confirm
+                    </Button>
                   )}
-                  {selectedGuest && (
-                    <p className="text-sm text-green-600 mt-1">
-                      Selected: {selectedGuest.FIRST_NAME} {selectedGuest.LAST_NAME}
-                    </p>
+                  {res.STATUS === 'PENDING' && (
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => openEdit(res)}
+                    >
+                      <Pencil className="h-3.5 w-3.5" /> Edit
+                    </Button>
+                  )}
+                  {(res.STATUS === 'PENDING' || res.STATUS === 'CONFIRMED') && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-red-600 hover:bg-red-50 hover:text-red-700"
+                      onClick={() => handleCancel(res.RESERVATION_ID)}
+                    >
+                      <X className="h-3.5 w-3.5" /> Cancel
+                    </Button>
                   )}
                 </div>
-              )}
-              <div>
-                <label className="block text-sm font-medium text-surface-600 mb-1">Room Type *</label>
-                <select
-                  className="input-field"
-                  value={form.room_type_id}
-                  onChange={e => setForm({ ...form, room_type_id: Number(e.target.value) })}
-                >
-                  {roomTypes.map(t => (
-                    <option key={t.type_id} value={t.type_id}>{t.type_name} — {formatCurrency(t.base_price)}/night</option>
-                  ))}
-                </select>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-surface-600 mb-1">Check-in Date *</label>
-                  <input
-                    className="input-field"
-                    type="date"
-                    value={form.check_in_date}
-                    onChange={e => setForm({ ...form, check_in_date: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-surface-600 mb-1">Check-out Date *</label>
-                  <input
-                    className="input-field"
-                    type="date"
-                    value={form.check_out_date}
-                    onChange={e => setForm({ ...form, check_out_date: e.target.value })}
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-surface-600 mb-1">Special Requests</label>
-                <textarea
-                  className="input-field"
-                  rows={2}
-                  value={form.special_requests}
-                  onChange={e => setForm({ ...form, special_requests: e.target.value })}
-                  placeholder="Optional special requests..."
-                />
-              </div>
-            </div>
-            <div className="flex justify-end gap-3 mt-6">
-              <button className="btn-secondary" onClick={() => setShowForm(false)}>Cancel</button>
-              <button className="btn-primary" onClick={handleSave}>
-                {editingRes ? 'Update' : 'Create'}
-              </button>
-            </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-dust-300/60 bg-white px-4 py-3 shadow-card">
+          <p className="text-sm text-steel-600">
+            Showing {((page - 1) * 12) + 1} to {Math.min(page * 12, total)} of {total} reservations
+          </p>
+          <div className="flex gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              disabled={page === 1}
+              onClick={() => setPage(p => p - 1)}
+            >
+              <ChevronLeft className="h-4 w-4" /> Prev
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              disabled={page === totalPages}
+              onClick={() => setPage(p => p + 1)}
+            >
+              Next <ChevronRight className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       )}
+
+      {/* Create/Edit Form */}
+      <Dialog open={showForm} onOpenChange={setShowForm}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              {editingRes ? 'Edit Reservation' : 'New Reservation'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {!editingRes && (
+              <div className="space-y-1.5">
+                <Label htmlFor="guest_search">Search Guest *</Label>
+                <Input
+                  id="guest_search"
+                  placeholder="Type name or email to search..."
+                  value={guestSearch}
+                  onChange={e => setGuestSearch(e.target.value)}
+                />
+                {guests.length > 0 && (
+                  <div className="max-h-40 overflow-y-auto rounded-lg border border-dust-300 bg-white shadow-card">
+                    {guests.map(g => (
+                      <button
+                        key={g.GUEST_ID}
+                        className="w-full px-3 py-2 text-left text-sm transition-colors hover:bg-primary-50"
+                        onClick={() => {
+                          setSelectedGuest(g)
+                          setForm({ ...form, guest_id: g.GUEST_ID })
+                          setGuestSearch(`${g.FIRST_NAME} ${g.LAST_NAME}`)
+                          setGuests([])
+                        }}
+                      >
+                        {g.FIRST_NAME} {g.LAST_NAME} — {g.EMAIL}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {selectedGuest && (
+                  <p className="flex items-center gap-1 text-sm text-green-700">
+                    <Check className="h-3.5 w-3.5" />
+                    Selected: {selectedGuest.FIRST_NAME} {selectedGuest.LAST_NAME}
+                  </p>
+                )}
+              </div>
+            )}
+            <div className="space-y-1.5">
+              <Label>Room Type *</Label>
+              <Select
+                value={String(form.room_type_id)}
+                onValueChange={v => setForm({ ...form, room_type_id: Number(v) })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {roomTypes.map(t => (
+                    <SelectItem key={t.type_id} value={String(t.type_id)}>
+                      {t.type_name} — {formatCurrency(t.base_price)}/night
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="check_in">Check-in Date *</Label>
+                <Input
+                  id="check_in"
+                  type="date"
+                  value={form.check_in_date}
+                  onChange={e => setForm({ ...form, check_in_date: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="check_out">Check-out Date *</Label>
+                <Input
+                  id="check_out"
+                  type="date"
+                  value={form.check_out_date}
+                  onChange={e => setForm({ ...form, check_out_date: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="special_requests">Special Requests</Label>
+              <Textarea
+                id="special_requests"
+                rows={2}
+                value={form.special_requests}
+                onChange={e => setForm({ ...form, special_requests: e.target.value })}
+                placeholder="Optional special requests..."
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="secondary" onClick={() => setShowForm(false)}>Cancel</Button>
+            <Button
+              onClick={handleSave}
+              disabled={
+                saving ||
+                (!editingRes && !form.guest_id) ||
+                !form.check_in_date ||
+                !form.check_out_date
+              }
+            >
+              {saving ? 'Saving…' : editingRes ? 'Update' : 'Create'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

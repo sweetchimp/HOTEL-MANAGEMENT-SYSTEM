@@ -1,47 +1,60 @@
+@import './styles/design-system.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   body {
-    @apply bg-surface-50 text-surface-900 font-sans antialiased;
+    @apply bg-dust-100 text-[#1a1a1a] font-sans antialiased;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-primary-500 text-white px-4 py-2 rounded-lg font-medium
-           hover:bg-primary-600 transition-colors duration-200
+    @apply inline-flex items-center justify-center gap-2 bg-primary-500 text-white px-4 py-2 rounded-lg font-medium
+           hover:bg-primary-600 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0
+           transition-all duration-200 ease-out
            focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2
-           disabled:opacity-50 disabled:cursor-not-allowed;
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none;
   }
 
   .btn-secondary {
-    @apply bg-surface-200 text-surface-700 px-4 py-2 rounded-lg font-medium
-           hover:bg-surface-300 transition-colors duration-200
-           focus:outline-none focus:ring-2 focus:ring-surface-400 focus:ring-offset-2
-           disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 bg-white text-steel-700 border border-steel-300 px-4 py-2 rounded-lg font-medium
+           hover:bg-steel-50 hover:-translate-y-0.5 hover:shadow-sm active:translate-y-0
+           transition-all duration-200 ease-out
+           focus:outline-none focus:ring-2 focus:ring-steel-400 focus:ring-offset-2
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0;
   }
 
   .btn-accent {
-    @apply bg-accent-500 text-white px-4 py-2 rounded-lg font-medium
-           hover:bg-accent-600 transition-colors duration-200
+    @apply inline-flex items-center justify-center gap-2 bg-accent-500 text-[#1a1a1a] px-4 py-2 rounded-lg font-semibold
+           hover:bg-accent-600 hover:text-white hover:-translate-y-0.5 hover:shadow-md active:translate-y-0
+           transition-all duration-200 ease-out
            focus:outline-none focus:ring-2 focus:ring-accent-500 focus:ring-offset-2
            disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg font-medium
+           hover:bg-red-700 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0
+           transition-all duration-200 ease-out
+           focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
   .input-field {
-    @apply w-full px-3 py-2 border border-surface-300 rounded-lg
+    @apply w-full px-3 py-2 border border-steel-300 rounded-lg bg-white text-[#1a1a1a]
            focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-           placeholder:text-surface-400 transition-colors duration-200;
+           placeholder:text-steel-400 transition-colors duration-200;
   }
 
   .card {
-    @apply bg-white rounded-xl shadow-sm border border-surface-200 p-6;
+    @apply bg-white rounded-xl shadow-card border border-dust-300/60 p-6;
   }
 
   .badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium;
   }
 
   .badge-success {
@@ -49,7 +62,7 @@
   }
 
   .badge-warning {
-    @apply badge bg-yellow-100 text-yellow-800;
+    @apply badge bg-amber-100 text-amber-800;
   }
 
   .badge-danger {
@@ -61,7 +74,11 @@
   }
 
   .badge-neutral {
-    @apply badge bg-surface-100 text-surface-600;
+    @apply badge bg-dust-200 text-steel-700;
+  }
+
+  .badge-brand {
+    @apply badge bg-primary-100 text-primary-700;
   }
 
   .table-wrap {
