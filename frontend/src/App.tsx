@@ -22,6 +22,8 @@ import AuditLogPage from './pages/AuditLogPage'
 import AdminUsersPage from './pages/AdminUsersPage'
 import PublicBookingPage from './pages/PublicBookingPage'
 import AdminBookingRequestsPage from './pages/AdminBookingRequestsPage'
+import ContentPage from './pages/ContentPage'
+import PromotionsPage from './pages/PromotionsPage'
 import EmailCampaignsPage from './pages/EmailCampaignsPage'
 import AiContentPage from './pages/AiContentPage'
 
@@ -56,6 +58,8 @@ function App() {
           <Route path="audit" element={<AuditLogPage />} />
           <Route path="users" element={<AdminUsersPage />} />
           <Route path="booking-requests" element={<AdminBookingRequestsPage />} />
+          <Route path="content" element={<ContentPage />} />
+          <Route path="promotions" element={<PromotionsPage />} />
           <Route path="campaigns" element={<EmailCampaignsPage />} />
           <Route path="ai-content" element={<AiContentPage />} />
         </Route>

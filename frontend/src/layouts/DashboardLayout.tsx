@@ -18,6 +18,8 @@ import {
   UserCog,
   Inbox,
   Send,
+  Percent,
+  Newspaper,
   Wand2,
   Menu,
   X,
@@ -46,7 +48,9 @@ const navigation: {
   { name: 'Billing', href: '/dashboard/billing', icon: Wallet, roles: ['ADMIN', 'RECEPTIONIST', 'MANAGER'] },
   { name: 'Reports', href: '/dashboard/reports', icon: BarChart3, roles: ['ADMIN', 'MANAGER'] },
 
-  // Phase 4 — Email marketing
+  // Phase 4 — Public site content & marketing
+  { name: 'Content', href: '/dashboard/content', icon: Newspaper, roles: ['ADMIN', 'MANAGER'] },
+  { name: 'Promotions', href: '/dashboard/promotions', icon: Percent, roles: ['ADMIN', 'MANAGER'] },
   { name: 'Campaigns', href: '/dashboard/campaigns', icon: Send, roles: ['ADMIN', 'MANAGER'] },
 
   // Phase AI — Content generator
