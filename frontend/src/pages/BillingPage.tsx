@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { FileDown } from 'lucide-react'
 import { api } from '../services/api'
 import { formatCurrency } from '../utils/currency'
 import type {
@@ -255,6 +256,24 @@ export default function BillingPage() {
                     <p className="text-center text-surface-400 py-4">Loading details...</p>
                   ) : (
                     <div className="space-y-4">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                          <h4 className="text-sm font-semibold text-surface-700">Invoice #{detail.invoice.invoice_id}</h4>
+                          <p className="text-xs text-surface-500 mt-0.5">
+                            {detail.invoice.guest
+                              ? `${detail.invoice.guest.first_name} ${detail.invoice.guest.last_name}`.trim()
+                              : 'Guest details unavailable'}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => void import('../lib/pdf')
+                            .then(({ exportInvoicePdf }) => exportInvoicePdf(detail, balance))}
+                          className="btn-secondary text-sm inline-flex items-center gap-1.5"
+                        >
+                          <FileDown size={15} />
+                          Download PDF
+                        </button>
+                      </div>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div className="bg-white p-3 rounded-lg border border-surface-200">
                           <p className="text-xs text-surface-500 uppercase font-medium">Total Amount</p>

@@ -1,10 +1,16 @@
 import { useState, useEffect, useCallback } from 'react'
+import { Download, FileText } from 'lucide-react'
 import { api } from '../services/api'
 import { formatCurrency, formatCurrencyCompact } from '../utils/currency'
+import type { ReportPdfInput } from '../lib/pdf'
 import type {
   ReportSummary, MonthlyOccupancy, MonthlyRevenue,
   RoomTypeReport, PopularGuest,
 } from '../types'
+
+function exportPdf(input: ReportPdfInput) {
+  return import('../lib/pdf').then(({ exportReportPdf }) => exportReportPdf(input))
+}
 
 function downloadCSV(filename: string, headers: string[], rows: string[][]) {
   const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n')
@@ -15,6 +21,27 @@ function downloadCSV(filename: string, headers: string[], rows: string[][]) {
   a.download = filename
   a.click()
   URL.revokeObjectURL(url)
+}
+
+function ExportButtons({ onCsv, onPdf }: { onCsv: () => void; onPdf: () => void }) {
+  return (
+    <div className="flex items-center gap-3">
+      <button
+        onClick={onCsv}
+        className="inline-flex items-center gap-1 text-xs text-primary-600 hover:text-primary-800 font-medium"
+      >
+        <Download size={13} />
+        CSV
+      </button>
+      <button
+        onClick={onPdf}
+        className="inline-flex items-center gap-1 text-xs text-accent-600 hover:text-accent-700 font-medium"
+      >
+        <FileText size={13} />
+        PDF
+      </button>
+    </div>
+  )
 }
 
 export default function ReportsPage() {
@@ -113,12 +140,16 @@ export default function ReportsPage() {
             <div className="card p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-surface-700">Monthly Occupancy Rate</h3>
-                <button
-                  onClick={() => downloadCSV('occupancy.csv', ['Month', 'Rate (%)'], occupancy.map(o => [o.month, String(o.rate)]))}
-                  className="text-xs text-primary-600 hover:text-primary-800 font-medium"
-                >
-                  Export CSV
-                </button>
+                <ExportButtons
+                  onCsv={() => downloadCSV('occupancy.csv', ['Month', 'Rate (%)'], occupancy.map(o => [o.month, String(o.rate)]))}
+                  onPdf={() => void exportPdf({
+                    title: 'Monthly Occupancy Rate',
+                    subtitle: `Last ${period} months · ALTONS Hotel`,
+                    filename: 'occupancy',
+                    columns: ['Month', 'Rate (%)'],
+                    rows: occupancy.map(o => [o.month, String(o.rate)]),
+                  })}
+                />
               </div>
               <div className="flex items-end gap-2 h-40">
                 {occupancy.map((o) => (
@@ -139,12 +170,16 @@ export default function ReportsPage() {
             <div className="card p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-surface-700">Monthly Revenue</h3>
-                <button
-                  onClick={() => downloadCSV('revenue.csv', ['Month', 'Amount (UGX)'], revenue.map(r => [r.month, String(Math.round(r.amount * 3700))]))}
-                  className="text-xs text-primary-600 hover:text-primary-800 font-medium"
-                >
-                  Export CSV
-                </button>
+                <ExportButtons
+                  onCsv={() => downloadCSV('revenue.csv', ['Month', 'Amount (UGX)'], revenue.map(r => [r.month, String(Math.round(r.amount * 3700))]))}
+                  onPdf={() => void exportPdf({
+                    title: 'Monthly Revenue',
+                    subtitle: `Last ${period} months · ALTONS Hotel`,
+                    filename: 'revenue',
+                    columns: ['Month', 'Amount (UGX)'],
+                    rows: revenue.map(r => [r.month, formatCurrency(r.amount)]),
+                  })}
+                />
               </div>
               <div className="flex items-end gap-2 h-40">
                 {revenue.map((r) => (
@@ -167,12 +202,21 @@ export default function ReportsPage() {
             <div className="card p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-surface-700">Revenue by Room Type</h3>
-                <button
-                  onClick={() => downloadCSV('room-types.csv', ['Room Type', 'Bookings', 'Revenue (UGX)', 'Avg Rate (UGX)'], roomTypes.map(rt => [rt.type_name, String(rt.bookings), String(Math.round(rt.revenue * 3700)), String(Math.round(rt.avg_rate * 3700))]))}
-                  className="text-xs text-primary-600 hover:text-primary-800 font-medium"
-                >
-                  Export CSV
-                </button>
+                <ExportButtons
+                  onCsv={() => downloadCSV('room-types.csv', ['Room Type', 'Bookings', 'Revenue (UGX)', 'Avg Rate (UGX)'], roomTypes.map(rt => [rt.type_name, String(rt.bookings), String(Math.round(rt.revenue * 3700)), String(Math.round(rt.avg_rate * 3700))]))}
+                  onPdf={() => void exportPdf({
+                    title: 'Revenue by Room Type',
+                    subtitle: 'All time · ALTONS Hotel',
+                    filename: 'room-types',
+                    columns: ['Room Type', 'Bookings', 'Revenue (UGX)', 'Avg Rate (UGX)'],
+                    rows: roomTypes.map(rt => [
+                      rt.type_name,
+                      String(rt.bookings),
+                      formatCurrency(Number(rt.revenue)),
+                      formatCurrency(Number(rt.avg_rate)),
+                    ]),
+                  })}
+                />
               </div>
               <div className="table-wrap">
               <table className="w-full text-left text-sm">
@@ -205,12 +249,20 @@ export default function ReportsPage() {
             <div className="card p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-surface-700">Top Guests</h3>
-                <button
-                  onClick={() => downloadCSV('popular-guests.csv', ['Guest', 'Stays', 'Total Spend (UGX)'], popularGuests.map(g => [`${g.first_name} ${g.last_name}`, String(g.total_stays), String(Math.round(g.total_spend * 3700))]))}
-                  className="text-xs text-primary-600 hover:text-primary-800 font-medium"
-                >
-                  Export CSV
-                </button>
+                <ExportButtons
+                  onCsv={() => downloadCSV('popular-guests.csv', ['Guest', 'Stays', 'Total Spend (UGX)'], popularGuests.map(g => [`${g.first_name} ${g.last_name}`, String(g.total_stays), String(Math.round(g.total_spend * 3700))]))}
+                  onPdf={() => void exportPdf({
+                    title: 'Top Guests',
+                    subtitle: 'Top 10 by total spend · ALTONS Hotel',
+                    filename: 'popular-guests',
+                    columns: ['Guest', 'Stays', 'Total Spend (UGX)'],
+                    rows: popularGuests.map(g => [
+                      `${g.first_name} ${g.last_name}`,
+                      String(g.total_stays),
+                      formatCurrency(Number(g.total_spend)),
+                    ]),
+                  })}
+                />
               </div>
               <div className="table-wrap">
               <table className="w-full text-left text-sm">
